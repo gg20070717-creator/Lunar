@@ -1,4 +1,4 @@
-[gd_scene load_steps=51 format=3]
+[gd_scene load_steps=58 format=3]
 
 
 [ext_resource type="Script" path="res://scripts/level.gd" id="1"]
@@ -57,6 +57,13 @@
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_canned_food.tres" id="art_canned_food"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_floor_stain.tres" id="art_floor_stain_pack"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_stairs_up.tres" id="art_stairs_up"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_window.tres" id="art_kitchen_window"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_counter.tres" id="art_kitchen_counter"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_puddle.tres" id="art_kitchen_puddle"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_tent_storage_box.tres" id="art_tent_storage_box"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_small_tent.tres" id="art_small_tent"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_draft_paper.tres" id="art_kitchen_draft_paper"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_storage_cabinet.tres" id="art_kitchen_storage_cabinet"]
 
 [node name="FirstFloor" type="Node2D"]
 texture_filter = 1
@@ -655,45 +662,56 @@ artwork_offset = Vector2(0, 0)
 z_index = 2
 
 [node name="SideWindow" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(1422.000000, 700.913978)
-size = Vector2(12, 230)
-label = "窗"
-solid = true
+position = Vector2(1421.35, 559.075)
+size = Vector2(19.6, 191.45)
+artwork = ExtResource("art_kitchen_window")
+artwork_size = Vector2(19.6, 191.45)
+label = ""
+solid = false
 oval = false
 shade = Color(0.97, 0.97, 0.97, 1)
 label_size = 18
+z_index = 2
 
 [node name="SmallTent" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(580.000000, 883.064516)
-size = Vector2(160, 160)
-label = "小帐篷"
-solid = true
-oval = true
+position = Vector2(593.075, 888.425)
+size = Vector2(189.35, 167.65)
+artwork = ExtResource("art_small_tent")
+artwork_size = Vector2(189.35, 167.65)
+label = ""
+solid = false
+oval = false
 shade = Color(0.92, 0.92, 0.92, 1)
 label_size = 24
 
 [node name="TentStorageBox" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(720, 930)
-size = Vector2(96, 64)
-label = "收纳盒"
+position = Vector2(741.475, 548.05)
+size = Vector2(50.75, 41.3)
+artwork = ExtResource("art_tent_storage_box")
+artwork_size = Vector2(50.75, 41.3)
+label = ""
 solid = true
 oval = false
 shade = Color(0.74, 0.80, 0.89, 1)
 label_size = 20
 
 [node name="KitchenCounter" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(1080.000000, 1002.000000)
-size = Vector2(460, 90)
-label = "厨房流理台"
+position = Vector2(1143.625, 969.45)
+size = Vector2(409.15, 137.9)
+artwork = ExtResource("art_kitchen_counter")
+artwork_size = Vector2(409.15, 137.9)
+label = ""
 solid = true
 oval = false
 shade = Color(0.88, 0.88, 0.88, 1)
 label_size = 24
 
 [node name="KitchenSideCounter" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(1395.000000, 897.000000)
-size = Vector2(80, 300)
-label = "储\n物\n柜"
+position = Vector2(1386, 888.95)
+size = Vector2(82.6, 312.2)
+artwork = ExtResource("art_kitchen_storage_cabinet")
+artwork_size = Vector2(82.6, 312.2)
+label = ""
 solid = true
 oval = false
 shade = Color(0.88, 0.88, 0.88, 1)
@@ -737,10 +755,10 @@ label_size = 20
 artwork_offset = Vector2(0, 0)
 
 [node name="LivingRoomPuddle" parent="Geometry" instance=ExtResource("2")]
-artwork = ExtResource("art_floor_stain_pack")
-artwork_size = Vector2(115, 48.487461)
-position = Vector2(1300, 550)
-size = Vector2(115, 48.487461)
+artwork = ExtResource("art_kitchen_puddle")
+artwork_size = Vector2(184.8, 116.55)
+position = Vector2(1263.5, 482.075)
+size = Vector2(184.8, 116.55)
 label = ""
 solid = false
 oval = false
@@ -821,7 +839,7 @@ shade = Color(0.97, 0.97, 0.97, 1)
 label_size = 16
 z_index = 2
 [node name="KitchenWastePaperBasket" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(1260, 982)
+position = Vector2(1310, 982)
 size = Vector2(48, 48)
 label = "废纸篓"
 solid = false
@@ -836,10 +854,12 @@ width = 1.5
 default_color = Color(0.35, 0.35, 0.35, 1)
 
 [node name="KitchenDraftPaper" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(1200, 1008)
-rotation = -0.1
-size = Vector2(48, 34)
-label = "草稿纸"
+position = Vector2(1235.85, 978.2)
+rotation = 0.0
+size = Vector2(72.8, 69.3)
+artwork = ExtResource("art_kitchen_draft_paper")
+artwork_size = Vector2(72.8, 69.3)
+label = ""
 solid = false
 oval = false
 shade = Color(0.98, 0.98, 0.98, 1)
@@ -852,6 +872,14 @@ size = Vector2(50.75, 28)
 label = ""
 solid = true
 oval = false
+draw_placeholder = false
+
+[node name="SmallTentFootprint" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(593.075, 888.425)
+size = Vector2(160, 160)
+label = ""
+solid = true
+oval = true
 draw_placeholder = false
 
 [node name="SofaHorizontalFootprint" parent="Geometry" instance=ExtResource("2")]
@@ -1120,7 +1148,7 @@ item_name = "储藏室钥匙"
 required_story_id = &"cg_04"
 
 [node name="CollectSmallTentMemory" type="Area2D" parent="Interactables"]
-position = Vector2(580, 980)
+position = Vector2(593.075, 1005)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1128,13 +1156,13 @@ monitorable = false
 script = ExtResource("collect_memory")
 visual_path = NodePath("../../Geometry/SmallTent")
 interaction_id = &"living_room_small_tent"
-interaction_rect = Rect2(-100, -25, 200, 90)
+interaction_rect = Rect2(-100, -15, 200, 35)
 text = "这是她的秘密基地。在无法入睡的夜晚，她会等你合上双眼后溜到这里，一个人写写画画。"
 fragment_id = &"memory_fragment_04"
 fragment_display_name = "月影"
 
 [node name="InspectTentStorageBox" type="Area2D" parent="Interactables"]
-position = Vector2(720, 990)
+position = Vector2(741.475, 608.05)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1142,7 +1170,7 @@ monitorable = false
 script = ExtResource("tent_storage")
 visual_path = NodePath("../../Geometry/TentStorageBox")
 interaction_id = &"tent_storage_box"
-interaction_rect = Rect2(-80, -40, 160, 90)
+interaction_rect = Rect2(-60, -10, 120, 50)
 text = "水面毫无波澜。"
 
 [node name="InspectUpperRoomPuddle" type="Area2D" parent="Interactables"]
@@ -1168,7 +1196,7 @@ visual_path = NodePath("../../Geometry/HallPuddle")
 text = "水渍到处都是。这座房子正在被水淹没。"
 
 [node name="InspectLivingRoomPuddle" type="Area2D" parent="Interactables"]
-position = Vector2(1300, 550)
+position = Vector2(1263.5, 482.075)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1201,7 +1229,7 @@ visual_path = NodePath("../../Geometry/DiningTable")
 text = "桌上是打开的罐头，空包装袋和未收拾的餐具。房子的主人离开时一定很着急。"
 
 [node name="InspectKitchenStorageCabinet" type="Area2D" parent="Interactables"]
-position = Vector2(1305, 890)
+position = Vector2(1300, 835)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1210,7 +1238,7 @@ script = ExtResource("inspect_text")
 interaction_id = &"InspectKitchenStorageCabinet"
 visual_path = NodePath("../../Geometry/KitchenSideCounter")
 text = "里面堆满了牛肉罐头，压缩饼干和瓶装水。"
-interaction_rect = Rect2(-15, -110, 65, 190)
+interaction_rect = Rect2(-35, -65, 60, 110)
 
 [node name="CollectMovieTicketMemory" type="Area2D" parent="Interactables"]
 position = Vector2(1051.75, 847)
@@ -1228,7 +1256,7 @@ fragment_id = &"memory_fragment_05"
 fragment_display_name = "镜面"
 
 [node name="InspectKitchenDraftPaper" type="Area2D" parent="Interactables"]
-position = Vector2(1200, 930)
+position = Vector2(1235.85, 875)
 collision_layer = 0
 collision_mask = 0
 monitoring = false

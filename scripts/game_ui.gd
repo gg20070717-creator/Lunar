@@ -7,6 +7,7 @@ signal ending_unlocked(ending_id: StringName)
 signal main_menu_requested
 const FONT = preload("res://ui_font.tres")
 const DialogueBubble = preload("res://scripts/ui/dialogue_bubble.gd")
+const DialoguePaper = preload("res://scripts/ui/dialogue_paper.gd")
 const TextStyle = preload("res://scripts/ui_text_style.gd")
 const PuzzleScene = preload("res://scenes/puzzles/memory_puzzle.tscn")
 const StoryDialogue = preload("res://scripts/ui/story_dialogue.gd")
@@ -43,7 +44,7 @@ var view_caption: Label
 var view_footer: Label
 var view_panel: ColorRect
 var view_texture: TextureRect
-var collection_panel: ColorRect
+var collection_panel: DialoguePaper
 var collection_text: Label
 var collection_footer: Label
 var collection_preview: CollectionPreview
@@ -100,9 +101,8 @@ func _ready() -> void:
 	view_footer = _label(overlay, "左键点击屏幕任意位置退出", 36, Color.BLACK)
 	TextStyle.apply(view_footer, 36)
 	view_footer.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	collection_panel = ColorRect.new()
-	collection_panel.color = Color.WHITE
-	collection_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	collection_panel = DialoguePaper.new()
+	collection_panel.name = "CollectionPanel"
 	overlay.add_child(collection_panel)
 	collection_text = _label(collection_panel, "", 36, Color.BLACK)
 	collection_text.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
@@ -158,6 +158,8 @@ func _bubble(parent: Node) -> DialogueBubble:
 
 func _layout() -> void:
 	var viewport := get_viewport().get_visible_rect().size
+	var paper_fit := minf(viewport.x / DialoguePaper.REFERENCE_SIZE.x, viewport.y / DialoguePaper.REFERENCE_SIZE.y)
+	var paper_origin := (viewport - DialoguePaper.REFERENCE_SIZE * paper_fit) * 0.5
 	ending_screen.position = viewport * Vector2(0.1, 0.25)
 	ending_screen.size = viewport * Vector2(0.8, 0.5)
 	var has_caption := not view_caption.text.is_empty()
@@ -170,25 +172,25 @@ func _layout() -> void:
 		view_texture.position = Vector2.ZERO
 		view_texture.size = viewport
 	if modal_mode == ModalMode.COLLECTION and collection_large_artwork:
-		view_texture.position = viewport * Vector2(0.03, 0.03)
-		view_texture.size = viewport * Vector2(0.94, 0.66)
+		view_texture.position = paper_origin + Vector2(58, 32) * paper_fit
+		view_texture.size = Vector2(1804, DialoguePaper.REFERENCE_RECT.position.y - 56.0) * paper_fit
 	view_caption.position = viewport * Vector2(0.1, 0.035)
 	view_caption.size = viewport * Vector2(0.8, 0.13)
 	view_notice.position = Vector2(viewport.x * 0.1, viewport.y * (0.18 if has_caption else 0.82))
 	view_notice.size = Vector2(viewport.x * 0.8, 70)
 	view_footer.size = Vector2(_line_width(view_footer), 66)
 	view_footer.position = Vector2((viewport.x - view_footer.size.x) * 0.5, viewport.y * 0.92)
-	collection_panel.position = viewport * Vector2(0.03, 0.72)
-	collection_panel.size = viewport * Vector2(0.94, 0.25)
-	var inset := 32.0
-	var content_height := collection_panel.size.y - 48.0
-	collection_preview.position = Vector2(inset, 24)
-	collection_preview.size = Vector2(minf(200, collection_panel.size.x * 0.2), content_height)
-	var text_left := inset + (collection_preview.size.x + 32 if collection_preview.visible else 0.0)
-	collection_text.position = Vector2(text_left, 24)
-	collection_text.size = Vector2(collection_panel.size.x - text_left - inset, content_height - (66 if collection_footer.visible else 0))
-	collection_footer.position = Vector2(inset, collection_panel.size.y - 76)
-	collection_footer.size = Vector2(collection_panel.size.x - inset * 2, 60)
+	collection_panel.position = paper_origin + DialoguePaper.REFERENCE_RECT.position * paper_fit
+	collection_panel.scale = Vector2.ONE * paper_fit
+	var content: Rect2 = DialoguePaper.CONTENT_RECT
+	var content_height := content.size.y - (66.0 if collection_footer.visible else 0.0)
+	collection_preview.position = content.position
+	collection_preview.size = Vector2(200, content_height)
+	var preview_width := collection_preview.size.x + 32.0 if collection_preview.visible else 0.0
+	var text_rect := Rect2(content.position + Vector2(preview_width, 0), Vector2(content.size.x - preview_width, content_height))
+	DialogueBubble.fit_text(collection_text, text_rect, 40 if collection_page == collection_reward_page else 36, 24)
+	collection_footer.position = Vector2(content.position.x, content.end.y - 60.0)
+	collection_footer.size = Vector2(content.size.x, 60)
 	_position_world_labels()
 
 func _line_width(label: Label) -> float:

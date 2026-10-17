@@ -6,8 +6,11 @@ signal load_slot_requested(slot_id: StringName)
 const GAME_SCENE_PATH := "res://main.tscn"
 const OpeningCinematic = preload("res://scripts/ui/opening_cinematic.gd")
 const PauseMenuScene = preload("res://scenes/ui/pause_menu.tscn")
+const SettingsMenuScene = preload("res://scenes/ui/settings_menu.tscn")
+const SettingsMenu = preload("res://scripts/ui/settings_menu.gd")
+const GameSettings = preload("res://scripts/ui/game_settings.gd")
 const REFERENCE_SIZE := Vector2(1920, 1080)
-const EMPTY_PAGES: Array[StringName] = [&"load_game", &"settings", &"credits"]
+const EMPTY_PAGES: Array[StringName] = [&"load_game", &"credits"]
 
 @export var transition_duration := 0.5
 @export var opening_black_delay := 0.65
@@ -24,9 +27,31 @@ var pause_menu: CanvasLayer
 var opening: OpeningCinematic
 var transitioning := false
 var transition_mask: ColorRect
+var game_settings: GameSettings
+var settings_menu: SettingsMenu
+var _settings_return_page: StringName = &"main"
+var _brightness_mask: ColorRect
 
 
 func _ready() -> void:
+	game_settings = GameSettings.new()
+	game_settings.name = "GameSettings"
+	add_child(game_settings)
+	var brightness_layer := CanvasLayer.new()
+	brightness_layer.name = "DisplayBrightness"
+	brightness_layer.layer = 110
+	add_child(brightness_layer)
+	_brightness_mask = ColorRect.new()
+	_brightness_mask.name = "BrightnessMask"
+	_brightness_mask.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_brightness_mask.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	brightness_layer.add_child(_brightness_mask)
+	game_settings.changed.connect(_apply_brightness)
+	_apply_brightness()
+	settings_menu = SettingsMenuScene.instantiate() as SettingsMenu
+	add_child(settings_menu)
+	settings_menu.configure(game_settings)
+	settings_menu.close_requested.connect(_close_settings)
 	opening = OpeningCinematic.new()
 	opening.name = "OpeningCinematic"
 	add_child(opening)
@@ -46,9 +71,15 @@ func _ready() -> void:
 	pause_menu.connect("resume_requested", continue_game)
 	pause_menu.connect("main_menu_requested", return_to_menu)
 	pause_menu.connect("quit_requested", _on_quit_pressed)
+	pause_menu.connect("settings_requested", _on_settings_pressed)
 	get_viewport().size_changed.connect(_fit_artwork)
 	_fit_artwork()
 	return_to_menu()
+
+
+func _apply_brightness() -> void:
+	_brightness_mask.color = Color(0, 0, 0, (100.0 - game_settings.brightness) * 0.006)
+	_brightness_mask.visible = game_settings.brightness < 100
 
 
 func _fit_artwork() -> void:
@@ -61,6 +92,7 @@ func _fit_artwork() -> void:
 func start_new_game() -> void:
 	if transitioning:
 		return
+	_hide_settings()
 	# Lock input before any loading work so the menu responds immediately.
 	transitioning = true
 	current_page = &"transition"
@@ -141,6 +173,10 @@ func _fade_to(alpha: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if current_page == &"settings" and event.is_action_pressed("ui_cancel") and not event.is_echo():
+		_close_settings()
+		get_viewport().set_input_as_handled()
+		return
 	if not transitioning:
 		return
 	if current_page == &"opening":
@@ -152,6 +188,7 @@ func continue_game() -> void:
 		return
 	if not is_instance_valid(_game):
 		return
+	_hide_settings()
 	pause_menu.hide()
 	current_page = &"game"
 	menu_root.hide()
@@ -167,6 +204,7 @@ func continue_game() -> void:
 func return_to_menu() -> void:
 	if transitioning:
 		return
+	_hide_settings()
 	pause_menu.hide()
 	_suspend_game()
 	current_page = &"main"
@@ -179,6 +217,9 @@ func return_to_menu() -> void:
 func open_page(page_id: StringName) -> void:
 	if transitioning:
 		return
+	if page_id == &"settings":
+		_open_settings()
+		return
 	if page_id not in EMPTY_PAGES:
 		return
 	pause_menu.hide()
@@ -188,6 +229,45 @@ func open_page(page_id: StringName) -> void:
 	empty_page.set_meta("page_id", page_id)
 	empty_page.show()
 	page_requested.emit(page_id)
+
+
+func _open_settings() -> void:
+	if transitioning or current_page not in [&"main", &"pause"]:
+		return
+	_settings_return_page = current_page
+	current_page = &"settings"
+	if _settings_return_page == &"main":
+		_set_menu_buttons_visible(false)
+	else:
+		# The existing pause blur stays rendered, and its artwork is hidden.
+		pause_menu.call("set_settings_open", true)
+	settings_menu.open(_settings_return_page == &"main")
+	page_requested.emit(&"settings")
+	get_viewport().set_input_as_handled()
+
+
+func _close_settings() -> void:
+	if current_page != &"settings":
+		return
+	_hide_settings()
+	current_page = _settings_return_page
+	get_viewport().set_input_as_handled()
+
+
+func _hide_settings() -> void:
+	if settings_menu.visible:
+		settings_menu.close()
+	_set_menu_buttons_visible(true)
+	if pause_menu != null:
+		pause_menu.call("set_settings_open", false)
+
+
+func _set_menu_buttons_visible(value: bool) -> void:
+	for child in artwork.get_children():
+		if child is BaseButton:
+			child.visible = value
+			if not value:
+				child.release_focus()
 
 
 func request_load_slot(slot_id: StringName) -> void:

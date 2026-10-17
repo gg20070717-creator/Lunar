@@ -7,7 +7,9 @@ signal choice_selected(choice_id: StringName)
 
 const FONT = preload("res://ui_font.tres")
 const DialogueBubble = preload("res://scripts/ui/dialogue_bubble.gd")
+const DialoguePaper = preload("res://scripts/ui/dialogue_paper.gd")
 const REFERENCE_SIZE := Vector2(1920, 1080)
+const PANEL_RECT := DialoguePaper.REFERENCE_RECT
 const SHAKE_DURATION := 0.55
 const SHAKE_STRENGTH := 16.0
 const PORTRAIT_REGION := Rect2(180, 70, 715, 1800)
@@ -25,7 +27,7 @@ var page_index := 0
 var active := false
 var artwork: Control
 var portrait: TextureRect
-var panel: ColorRect
+var panel: DialoguePaper
 var speaker_label: Label
 var body_label: Label
 var hint_label: Label
@@ -69,12 +71,9 @@ func _ready() -> void:
 	portrait.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	artwork.add_child(portrait)
 	portrait.hide()
-	panel = ColorRect.new()
+	panel = DialoguePaper.new()
 	panel.name = "DialoguePanel"
-	panel.color = Color.WHITE
-	panel.position = Vector2(58, 800)
-	panel.size = Vector2(1804, 248)
-	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.position = PANEL_RECT.position
 	artwork.add_child(panel)
 	speaker_label = _make_label("Speaker", 32)
 	body_label = _make_label("Body", 36)
@@ -99,16 +98,15 @@ func _make_label(node_name: String, font_size: int) -> Label:
 	return result
 
 func _layout_text() -> void:
-	# Keep the original rectangular dialogue layout; choices share its text area.
-	speaker_label.position = Vector2(32, 18)
-	speaker_label.size = Vector2(1740, 42)
-	var body_rect := Rect2(Vector2(32, 68 if speaker_label.visible else 30), Vector2(1740, 130 if speaker_label.visible else 168))
+	speaker_label.position = DialoguePaper.SPEAKER_RECT.position
+	speaker_label.size = DialoguePaper.SPEAKER_RECT.size
+	var body_rect: Rect2 = DialoguePaper.SPOKEN_BODY_RECT if speaker_label.visible else DialoguePaper.NARRATION_BODY_RECT
 	if not _choices.is_empty():
 		_layout_choices(body_rect)
 		body_rect.size.y = 0.0 if body_label.text.is_empty() else body_rect.size.y * 0.3
 	DialogueBubble.fit_text(body_label, body_rect, 36, 24)
-	hint_label.position = Vector2(1200, 207)
-	hint_label.size = Vector2(568, 30)
+	hint_label.position = DialoguePaper.HINT_RECT.position
+	hint_label.size = DialoguePaper.HINT_RECT.size
 
 func _layout_choices(body_rect: Rect2) -> void:
 	var body_height := 0.0 if body_label.text.is_empty() else body_rect.size.y * 0.3

@@ -1,0 +1,8 @@
+[gd_resource type="AtlasTexture" load_steps=2 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/art/environments/first_floor/decals/first_floor_kitchen_puddle.png" id="1_texture"]
+
+[resource]
+atlas = ExtResource("1_texture")
+region = Rect2(3246, 1028, 528, 333)
+filter_clip = true

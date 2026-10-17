@@ -2,7 +2,7 @@
 
 ## 文档职责
 
-本文说明 Lunar 在 `D:/godot/demo/demo2` 内的运行结构、模块职责、接口及扩展方式。静态核对日期：2026-10-17，依据当前 `.gd`、`.tscn`、`.tres` 与项目配置整理。四处谜题共 32 条有序路由，阶段四以句型 3“【A】从【B】中涌现”接入五碎片、18 条微剧情与两条正式分支；电影票提供镜面，连续三次反向填写触发真实导向。完整 `cg_04` 后同黑屏衔接第五幕，真回忆后进入储物间与装置选择，最终解锁假结局 `end1` 或真结局 `end2`。原三处组合、后续对白、10.15 素材及音频参数保留。CG 位图、电影票与装置美术继续待补。此前剧情与资产接入仅静态核对，未进行音频试听；本次新游戏黑屏修复已单独运行验证，具体范围见项目状态文档，其他模块继续按各节待验收说明处理。
+本文说明 Lunar 在 `D:/godot/demo/demo2` 内的运行结构、模块职责、接口及扩展方式。静态核对日期：2026-10-18，依据当前 `.gd`、`.tscn`、`.tres` 与项目配置整理。四处谜题共 32 条有序路由，阶段四以句型 3“【A】从【B】中涌现”接入五碎片、18 条微剧情与两条正式分支；电影票提供镜面，连续三次反向填写触发真实导向。完整 `cg_04` 后同黑屏衔接第五幕，真回忆后进入储物间与装置选择，最终解锁假结局 `end1` 或真结局 `end2`。原三处组合、后续对白、10.15 素材及音乐切换参数保留。主菜单与暂停共用独立偏好的设置页，剧情及收集/物件查看共用纸张对白框；返回门、仓库、装置与电影票已接入图片，详见下文。CG 位图继续待补。本次设置、对白框及环境资产接入仅静态核对，未启动游戏、引擎或测试，未进行音频试听；2026-10-17 新游戏黑屏专项修复的历史运行范围见项目状态文档，其余模块继续按各节待验收说明处理。
 
 - 开发操作、项目边界及验证要求见 [AGENTS.md](../AGENTS.md)。
 - 当前接入内容、占位与后续事项见 [项目状态](project_status.md)。
@@ -20,6 +20,9 @@
 | --- | --- |
 | `project.godot` | 引擎设置、主场景、插件与运行时辅助节点配置 |
 | `scenes/ui/main_menu.tscn`、`scripts/ui/main_menu.gd` | F5 主入口，会话创建、保留、暂停与菜单切换 |
+| `scenes/ui/settings_menu.tscn`、`scripts/ui/settings_menu.gd`、`settings_slider.gd` | 主菜单及暂停共用的设置页、纹理滑杆与来源返回 |
+| `scripts/ui/game_settings.gd`、`default_bus_layout.tres` | 独立设置偏好、即时应用、BGM/SFX 音量总线 |
+| `scripts/ui/dialogue_paper.gd`、`resources/art/ui/dialogue_paper.tres` | 剧情、收集和物件查看共用的纸张皮肤及参考布局 |
 | `main.tscn`、`scripts/main.gd` | 单次游戏会话，协调玩家、地点、状态与 UI |
 | `scenes/` | 五个地点及玩家、白模、移动边界复用场景 |
 | `scripts/` | 探索、交互、会话状态及共享显示组件 |
@@ -57,7 +60,7 @@ Godot AI 的 `_mcp_game_helper` 是工具辅助 autoload。玩法状态由 `main
 
 BGM 不自动播放。整段开场和卧室淡入结束前保持无音乐，菜单在恢复自由操作界面时才开始 Hide。新游戏销毁旧会话并重建 BGM，起始播放位置为 0；继续游戏恢复当前时间，主菜单没有另建音乐播放器。
 
-“继续游戏”要求当前 `_game` 有效。退出进程后会话消失；存档槽、设置和制作人员页面目前为预留空白页。后续页面接口为：
+“继续游戏”要求当前 `_game` 有效。退出进程后会话消失；音量和亮度偏好独立保留。存档槽与制作人员页面目前为预留空白页。页面接口为：
 
 | 接口 | 作用 |
 | --- | --- |
@@ -65,6 +68,18 @@ BGM 不自动播放。整段开场和卧室淡入结束前保持无音乐，菜�
 | `request_load_slot(slot_id)` | 供未来槽位界面调用 |
 | `load_slot_requested(slot_id)` | 转发载入请求，当前没有读写存档实现 |
 | `return_to_menu()`、`pause_game()`、`continue_game()` | 控制现有会话的显示与处理模式 |
+
+### 共享设置与偏好
+
+`main_menu.gd` 创建 `scripts/ui/game_settings.gd` 服务和 `scenes/ui/settings_menu.tscn` 实例，并记录设置页的来源。主菜单与暂停界面均打开同一个设置组件；关闭按钮或 Esc 保存偏好并回到原界面，从暂停进入设置时游戏与 BGM 持续冻结。Esc 每次处理一层，返回暂停后下一次 Esc 才继续游戏。
+
+设置服务持有 `sfx_volume`、`music_volume`、`brightness` 三个 0–100 整数，默认均为 100。服务随菜单壳存在，游戏会话重建保留这些值；偏好单独读写 `user://settings.cfg`，不包含地点、库存或剧情进度。调节立即应用，拖动结束、键盘/滚轮调节、返回和重置默认值时保存；窗口关闭或服务退出时补存未写入改动。
+
+`settings_menu.gd` 按 1920×1080 参考画布等比居中显示用户提供的半透明蓝色背景、三行设置标题、重置与返回图片按钮；`settings_slider.gd` 使用横条与箭头纹理，接收鼠标点击/拖动、触摸拖动、滚轮及聚焦后的左右键和 Home/End，并将当前 0–100 数值显示在横条右侧。拖出控件后继续接收当前拖动，松开或窗口失焦时结束；关闭页面清理拖动与焦点。重置统一恢复三项默认值并刷新箭头和数字。
+
+设置层为 CanvasLayer 40。从主菜单进入时隐藏所有菜单按钮，背景与 Lunar 标题保留供设置层两遍高斯模糊取样，再叠加设置背景与控件。从暂停进入时隐藏暂停 `Artwork`，复用暂停层既有两遍模糊，避免叠加原暂停文字。菜单壳另建 CanvasLayer 110 的全屏黑色亮度遮罩，鼠标过滤为忽略；亮度 100 时完全透明，亮度 0 时黑色 alpha 为 0.6，统一作用于菜单、设置、开场、游戏和转场。
+
+`default_bus_layout.tres` 配置 Master、BGM、SFX，后两者输出至 Master。设置服务将背景音乐及音效百分比应用到各自总线，0 使用总线静音；BGM 控制器基准 `-6 dB` 保留。当前尚无实际音效素材或触发，后续音效播放器需输出至 SFX。
 
 ### 常驻游戏结构
 
@@ -81,7 +96,7 @@ Demo2 (main.gd)
   RoomTransition (运行时建立, CanvasLayer 90)
 ```
 
-地点切换只替换 `LevelHost` 的子实例。玩家、相机、GameState、GameUI 与 BGM 在单次会话内复用。主菜单的开场层为 50、全局转场层为 100，暂停场景层为 20。
+地点切换只替换 `LevelHost` 的子实例。玩家、相机、GameState、GameUI 与 BGM 在单次会话内复用。主菜单的开场层为 50、全局转场层为 100，暂停场景层为 20、设置层为 40、全局亮度层为 110。
 
 `main.gd` 默认从 `bedroom.tscn` 的 `start` 出生。地点根节点挂 `level.gd`，包含以下固定结构：
 
@@ -205,7 +220,7 @@ context = {"game": self, "player": player, "state": state, "ui": ui}
 
 一楼 `PlantStorageKey` 绑定 `Geometry/Plant`，交互脚点 `(695, 409)`，使用 `story_gated_key.gd` 的 `can_interact()` 检查 `cg_04`；条件未满足时不参与 F 目标选择，也不显示靠近高亮。满足后复用共享钥匙图标与去重收集流程，发放 `storage_key_02` /“储藏室钥匙”（钥匙 2），钥匙不消耗。阶段四任一正式分支完整读完后写入 `cg_04` 并解锁花盆钥匙；前两次 Luna 介入、微剧情和提前 Esc 不写入。`cg_03` 与其后第四幕普通对白保持各自身份，不解锁该钥匙。
 
-钥匙位置按用户最终确认保留在玄关花盆，地毯保留原查看。一楼上方 `UpperRoom` 作为储物间使用；`StorageRoomGate` 在入口阻挡，`OpenStorageRoom` 持钥匙原地解除碰撞并隐藏门，以 `storage_room_opened` 跨重载恢复，不切换场景、不消耗钥匙。房内 `UseConsciousnessDevice` 绑定 `Geometry/ConsciousnessDevice`，需门已开、完整 `cg_05_true`、最近 `cg_04=truth` 且玩家进入房内 `player_access_rect` 才可点击/F，避免隔墙触发。
+钥匙位置按用户最终确认保留在玄关花盆，地毯保留原查看。一楼上方 `UpperRoom` 作为储物间使用，原场景内接入仓库地板墙面、墙体、窗和门口内外两片；底部墙体分左右裁片保留入口。`StorageRoomGate` 在入口阻挡，`OpenStorageRoom` 持钥匙原地解除碰撞并共同隐藏两片门，以 `storage_room_opened` 跨重载恢复，不切换场景、不消耗钥匙。房内 `UseConsciousnessDevice` 继续绑定 `Geometry/ConsciousnessDevice`，装置使用传送门图片，需门已开、完整 `cg_05_true`、最近 `cg_04=truth` 且玩家进入实际仓库地板范围的 `player_access_rect` 才可点击/F，避免隔墙触发。
 
 碎片拖拽引导的已显示标记位于常驻 GameUI 的 `puzzle_drag_hint_seen`，供水井、鱼缸和洗笔桶在同一局中共享。它随新游戏重建 UI 后重置，退出谜题、换地点、失败重试及再次进入均保留；当前不写入 GameState 或磁盘。
 
@@ -218,7 +233,7 @@ context = {"game": self, "player": player, "state": state, "ui": ui}
 | `show_note(text, world_anchor, seconds)`、`clear_note()` | 限时世界气泡，随相机投影、按左右边缘调整尾巴朝向并限制在视口四边内 |
 | `show_view(title, caption, artwork, notice, show_exit_hint, narrative_text)` | 图片模态；`title` 留作当前标题状态，`caption` 参数当前未渲染，顶部正文来自 `narrative_text` |
 | `show_slideshow(title, artworks, seconds_per_slide)` | 过滤空图片，自动按顺序播放；完整结束或手动退出后关闭 |
-| `show_collection(pages, artwork, placeholder_type, reward_page, show_exit_hint, large_artwork)` | 白色矩形底框内正文分页，奖励页字号独立，可显示缩略图、共享钥匙图标或大图 |
+| `show_collection(pages, artwork, placeholder_type, reward_page, show_exit_hint, large_artwork)` | 纸张对白框内正文分页，奖励页字号独立，可显示缩略图、共享钥匙图标或大图；物件查看沿用此入口 |
 | `show_dialogue(pages)` | 普通逐字对白，实例由 GameUI 复用 |
 | `open_consciousness_device()` | 无其他模态时播放 `EndingStory.DEVICE_PAGES` 黑底正文与最终选择 |
 | `open_puzzle(definition, owned_fragments, show_introduction, puzzle_scene = PuzzleScene) -> bool` | 无模态时创建指定 PackedScene 的谜题实例，默认共用场景；复制库存并连接信号，依据本局 `puzzle_drag_hint_seen` 设置实例 `show_drag_hint`，收到 `drag_hint_presented` 后记录已显示；空场景拒绝打开 |
@@ -243,21 +258,25 @@ context["ui"].show_dialogue(pages)
 
 页可配置 `shake: true`，由 StoryDialogue 统一播放 0.55 秒、参考幅度 16 像素的衰减震动；`set_shake_offset()` 更新对白位置并发出 `shake_offset_changed(offset)`，偏移采用参考画布坐标。`main.gd` 监听常驻 GameUI 的对白实例，将偏移按对白缩放和镜头 zoom 转为反向 `Camera2D.offset`，使探索画面与对白同步移动。翻页、完整结束和 `stop()` 均归零，Esc 经 GameUI 关闭时同样清理。开场沿用此页字段及相同参数，共用实现管理震动计时。
 
-页可配置 `choices: Array[Dictionary]`，每项为 `{id: StringName, text: String}`。正文完整显示后在底部白色矩形对白框内出现编号文字选项，支持鼠标、↑↓、Enter/空格/F 与数字 1/2；普通 `advance()` 不跳过选择。选择前置 `active=false` 并清理按钮/焦点，再发出 `choice_selected(choice_id)`，回调可同步 `start()` 新页；翻页和 `stop()` 同样清理。装置页显式关闭立绘，黑底由 GameUI 提供。
+页可配置 `choices: Array[Dictionary]`，每项为 `{id: StringName, text: String}`。正文完整显示后在底部纸张对白框内出现编号文字选项，支持鼠标、↑↓、Enter/空格/F 与数字 1/2；普通 `advance()` 不跳过选择。选择前置 `active=false` 并清理按钮/焦点，再发出 `choice_selected(choice_id)`，回调可同步 `start()` 新页；翻页和 `stop()` 同样清理。装置页显式关闭立绘，黑底由 GameUI 提供。
 
 对白、开场和菜单按 1920 x 1080 参考画布等比居中适配。字体统一引用 `ui_font.tres`；`ui_text_style.gd` 管理一般提示的基础文字，谜题可按配置覆盖。主菜单与暂停按钮沿用图片文字。
 
-开场与通用 `StoryDialogue` 已恢复原白色 `ColorRect` 底框，参考位置 `(58, 800)`、尺寸 `1804×248`，原说话人/正文布局与主角立绘保留，选择项共用该矩形正文区域。GameUI 的 `collection_panel` 为白色矩形，`view_panel` 为浅灰矩形，保留图片、分页、奖励与模态生命周期；正文尺寸适配继续复用 `DialogueBubble.fit_text()`。
+`scripts/ui/dialogue_paper.gd` 提供共享 `TextureRect` 皮肤，引用 `resources/art/ui/dialogue_paper.tres`。原 `对话框.png` 为 1920×1080 透明图，按原字节归档至 `assets/art/ui/panels/dialogue_paper.png`，AtlasTexture 裁区为 `(37, 720, 1845, 291)`；`StoryDialogue.PANEL_RECT` 和 GameUI 的 `collection_panel` 以该参考位置与尺寸等比居中适配。纸张显示保持原比例，文字使用局部安全区避开右侧折角，字体、黑字与优先字号保留。
 
-`scripts/ui/dialogue_bubble.gd` 与 `resources/art/ui/dialogue_bubble.tres` 继续用于 GameUI 的 `prompt_bubble`、`note_bubble` 世界提示。`content_rect()` 给出图内安全正文区，`fit_text()` 根据换行高度适配字号；`tail_on_right` 使用负宽度水平翻转，绘制原点保持 `Vector2.ZERO`。GameUI 将世界锚点投影到屏幕后摆放气泡、限制在四边内并调整尾巴方向。此前镜像额外右移一个框宽的修复保留；月光谜题、微剧情、CG 图片和首次键帽说明继续沿用各自样式。本轮底框恢复当前仅静态核对。
+StoryDialogue 有说话人时正文安全区为 `(48, 78, 1688, 154)`，无说话人时为 `(48, 40, 1688, 192)`，继续提示为 `(48, 242, 1688, 30)`；选择项复用正文安全区并保留长文缩字号。GameUI 收集/物件查看的安全区为 `(48, 24, 1688, 242)`，正文与页脚各留空间，正文优先字号 36、奖励页 40，必要时通过 `DialogueBubble.fit_text()` 缩小至 24。附大图限制在纸张顶部上方 24 个参考像素，缩略图和钥匙预览继续保留。
 
-2026-10-17 的历史黑屏专项验证已复现当时的镜像异常，并检查修复后的普通/镜像框体、新游戏按钮触发、开场首句可见、鼠标与 Enter 翻页及进入卧室，报告 `failures=[]`。该记录对应底框恢复前的版本；当前白色矩形底框、世界提示视口边缘与其余路线的验证独立记录。
+共享 StoryDialogue 覆盖开场、普通剧情、四处谜题前置/正式/抵抗对白、第五幕、装置选择及结局正文，原翻页、奖励、选项、立绘、震动与模态逻辑保留。`memory_puzzle.gd` 的 CG 图片布局读取 `StoryDialogue.PANEL_RECT.position.y`，在参考 y=720 的纸张上方布局。微剧情继续使用 `memory_echo.gd` 浮字，首次键帽说明保持原样；独立大图 `view_panel` 继续为浅灰底。本次纸张接入仅静态核对，未运行引擎、试玩或测试。
+
+`scripts/ui/dialogue_bubble.gd` 与 `resources/art/ui/dialogue_bubble.tres` 继续用于 GameUI 的 `prompt_bubble`、`note_bubble` 世界提示。`content_rect()` 给出图内安全正文区，`fit_text()` 根据换行高度适配字号；`tail_on_right` 使用负宽度水平翻转，绘制原点保持 `Vector2.ZERO`。GameUI 将世界锚点投影到屏幕后摆放气泡、限制在四边内并调整尾巴方向。此前镜像额外右移一个框宽的修复保留，世界提示沿用原气泡皮肤。
+
+2026-10-17 的历史黑屏专项验证已复现当时的镜像异常，并检查修复后的普通/镜像框体、新游戏按钮触发、开场首句可见、鼠标与 Enter 翻页及进入卧室，报告 `failures=[]`。该记录对应当时使用气泡底图的版本；后续矩形底框及当前纸张对白框、世界提示视口边缘与其余路线的验证独立记录。
 
 `collection_preview.gd` 等比显示道具图片；`collect_key.gd` 的默认 `artwork` 与 `placeholder_type = key` 的回退均引用 `resources/art/ui/key_icon.tres`。该替换只影响图标，去重发放、钥匙查询与门户持有逻辑保留。
 
 ## 会话背景音乐
 
-`main.tscn` 根下的 `BGM` Node 挂 `scripts/audio/bgm_controller.gd`，运行时创建一个 `AudioStreamPlayer`。控制器深复制 `resources/audio/gameplay_bgm.tres` 的 AudioStreamInteractive，为当前会话保留独立状态；clip 0 为 Hide，clip 1 为 Seek（原曲名 SEEK）。默认音量 `-6 dB` 可由导出属性调整，输出至 `Master` bus。
+`main.tscn` 根下的 `BGM` Node 挂 `scripts/audio/bgm_controller.gd`，运行时创建一个 `AudioStreamPlayer`。控制器深复制 `resources/audio/gameplay_bgm.tres` 的 AudioStreamInteractive，为当前会话保留独立状态；clip 0 为 Hide，clip 1 为 Seek（原曲名 SEEK）。播放器基准音量 `-6 dB` 可由导出属性调整，输出至 `BGM` 总线，设置页的背景音乐百分比在总线上统一生效。
 
 | 接口 | 作用 |
 | --- | --- |
@@ -270,7 +289,7 @@ context["ui"].show_dialogue(pages)
 
 双向转换均使用 `IMMEDIATE + SAME_POSITION + FADE_CROSS`，通过 `AudioStreamPlaybackInteractive.switch_to_clip()` 在同位置切换。`fade_beats = 0.03` 在当前无 BPM 的 WAV 上对应约 30 ms 逐采样交叉平滑；切换不重新播放或 seek。暂停与返回菜单由菜单壳显式挂起播放器，新游戏通过重建整个会话从 0 开始；整个开场及卧室淡入期间无 BGM，主菜单无新增 BGM。
 
-两份原 WAV 与导入参数独立维护在 `assets/audio/`，全曲循环为 `begin 0 / end -1`，格式、循环枚举及替换约束见音频规范。当前未实现音效系统或音量设置页。原文件归档及参数已静态核对，四处组合剧情沿用既有谜题音乐生命周期；未由 Codex 启动试玩或音频试听，同位置切换、循环和乐句衔接的实际听感待用户确认。
+两份原 WAV 与导入参数独立维护在 `assets/audio/`，全曲循环为 `begin 0 / end -1`，格式、循环枚举及替换约束见音频规范。设置页已提供独立 BGM/SFX 音量，当前尚无实际音效素材或触发。原文件归档、参数与总线引用已静态核对，四处组合剧情沿用既有谜题音乐生命周期；本次未由 Codex 启动游戏、引擎、测试或音频试听，同位置切换、音量调整、循环和乐句衔接的实际听感待用户确认。
 
 ## 共用记忆解谜
 
@@ -355,7 +374,7 @@ context["ui"].open_puzzle(definition, context["state"].owned_fragment_ids())
 
 ### 阶段四帐篷收纳盒
 
-一楼 `Geometry/TentStorageBox` 为小帐篷旁的独立白模，位置 `(720, 930)`、尺寸 `96×64`、`solid=true`。`Interactables/InspectTentStorageBox` 使用 `tent_storage_interaction.gd` 打开 `tent_storage_memory`；脚点 `(720, 990)`，局部 F 矩形 `(-80, -40, 160, 90)`，要求完整 `cg_03` 与至少一个匹配碎片。条件未齐时显示“水面毫无波澜。”。`SmallTent` 继续独立收集月影。背景绑定用户 ZIP 原图，布局示意仅作参考。A/B/C/D/E 分别绑定港湾/涌泉/潮汐/月影/镜面，解谜不发放或消耗库存。
+一楼 `Geometry/TentStorageBox` 使用独立透明新图，按源构图位于客厅中央 `(741.475, 548.05)`，视觉与矩形实体尺寸均为 `50.75×41.3`。`Interactables/InspectTentStorageBox` 使用 `tent_storage_interaction.gd` 打开 `tent_storage_memory`；脚点 `(741.475, 608.05)`，局部 F 矩形 `(-60, -10, 120, 50)`，稳定交互 ID `tent_storage_box`、完整 `cg_03` 与至少一个匹配碎片门槛保留。条件未齐时显示“水面毫无波澜。”。`SmallTent` 继续独立收集月影。解谜背景绑定用户 ZIP 原图，布局示意仅作参考。A/B/C/D/E 分别绑定港湾/涌泉/潮汐/月影/镜面，解谜不发放或消耗库存。
 
 收纳盒交互导出的 `puzzle_scene` 预加载 `scenes/puzzles/tent_storage_memory_puzzle.tscn`，通过 `open_puzzle(definition, owned_ids, show_intro, puzzle_scene)` 实际创建该继承场景。`show_intro` 由本局 `tent_storage_memory_intro` 标记决定，前置对白实际开始后记录；提前退出保留，新游戏重置。原三处调用沿用末尾参数默认值，不需要修改入口；定义与场景均可独立配置。
 
@@ -407,6 +426,7 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 | `embedded_art_glow_proxy.gd` | 不绘制图片，向点击及光晕接口提供 `size/artwork/artwork_size/artwork_offset/oval`；走廊背景自带水渍借助透明遮罩复用现有高亮 |
 | `interaction_glow.gd` + `shaders/interaction_glow.gdshader` | 懒创建独立光晕子层，按 PNG alpha/Atlas 裁区或矩形椭圆采样；依据 canvas 缩放保持屏幕亮边宽度；白色普通目标、幽蓝记忆目标，暂停随游戏冻结 |
 | `pause_menu.tscn` + `shaders/pause_gaussian_blur.gdshader`、`pause_title.gdshader` | 冻结画面上水平/垂直两遍模糊，中间 BackBufferCopy，再叠加半透明 ColorRect、独立 Atlas 标题和图片按钮 |
+| `settings_menu.tscn`、`settings_menu.gd`、`settings_slider.gd` | 复用两遍模糊和用户设置图片，三行可拖动纹理滑杆、右侧数值、重置及来源返回 |
 | `scripts/ui/menu_hover_button.gd` | 保持 TextureButton 命中矩形，子图层承担悬停展开、淡入及按压回弹 |
 | `LunarTitleFX/lunar_title.gd`、同名 shader、`lunar_title.tscn` | 主菜单标题单平面透视、鼠标平滑倾斜及程序扫光；每个实例独立 ShaderMaterial；可配置自动摆动与高光遮罩 |
 
@@ -414,9 +434,11 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 
 像素人物使用 `idle_up/down/left/right` 与 `walk_up/down/left/right` 八个动画名，原 PNG 位于 `assets/art/characters/player/`，源文件原尺寸与像素保留。AtlasTexture 仅裁透明留白，脚本按每帧裁区的实际高度等比缩放 `AnimatedSprite2D`，通过 `body_height = 150` 统一显示为 150 世界单位高，并供相机跟随参考。逐帧 `foot_anchor` 记录于 AtlasTexture metadata 与美术清单，缩放后仍按脚底锚点摆放，右向通过 `flip_h` 复用左向纹理。四方向待机以约 0.8 秒周期产生整数 2 世界单位的上下偏移，只影响可视层，碰撞、交互与脚底根位置保持。移动被模态或过渡锁定时，清零速度并切回当前朝向待机；暂停与回主菜单继续沿用会话冻结。原素材可见高度约 540–717，首次 1:1 接入后已调整为统一显示高度，各帧宽高比保留。2026-10-17 已通过 Godot 实例核对八个动画共 20 帧的统一高度与等比缩放、四向待机 2 世界单位幅度及原碰撞/交互参数，并查看卧室实际截图；手工移动衔接、多地图、交互流程与暂停未在本次验证范围内。
 
-光晕视觉绑定当前依赖物件的 `size`、`artwork`、`artwork_size`、`artwork_offset`、`draw_placeholder`、`oval` 属性。改用新物件类型时应提供相同属性或补充适配。走廊 `CorridorWaterStain` 采用只提供属性的代理节点，背景图片保留原墙面水渍与小黑点，独立 SVG 遮罩仅用于轮廓光晕；原叠加 `CorridorWaterDrop` 白模已移除，查看交互锚点调整为 `(1036.8, 90)`。走廊地面一处与画室 `WetPatch` 使用共享地板水渍，画室位置随资产布局调整；一楼四处改用同一 `first_floor_floor_stain.tres`，保留原位置、F 锚点、正文与无碰撞配置。标题效果包含 `res://LunarTitleFX/` 的绝对资源引用，迁移目录时同步修改引用。素材文件及裁图维护细节见美术资产规范。
+光晕视觉绑定当前依赖物件的 `size`、`artwork`、`artwork_size`、`artwork_offset`、`draw_placeholder`、`oval` 属性。改用新物件类型时应提供相同属性或补充适配。走廊 `CorridorWaterStain` 采用只提供属性的代理节点，背景图片保留原墙面水渍与小黑点，独立 SVG 遮罩仅用于轮廓光晕；原叠加 `CorridorWaterDrop` 白模已移除，查看交互锚点调整为 `(1036.8, 90)`。走廊地面一处与画室 `WetPatch` 使用共享地板水渍，画室位置随资产布局调整；一楼左上空房、左侧通道和帐篷右侧三处继续使用 `first_floor_floor_stain.tres`，保留原位置、F 锚点、正文与无碰撞配置，客厅 `LivingRoomPuddle` 使用独立 `first_floor_kitchen_puddle.tres`，中心及查看锚点同步至 `(1263.5, 482.075)`。标题效果包含 `res://LunarTitleFX/` 的绝对资源引用，迁移目录时同步修改引用。素材文件及裁图维护细节见美术资产规范。
 
 一楼第二批家具使用 `客厅厨房(2).zip` 的天然透明 4000×3000 原 PNG，通过 `resources/art/first_floor/` 内的 AtlasTexture 显示，按原图坐标乘 0.35 再加 `(35, 64)` 定位。鞋柜、地毯、挂画、两件沙发、餐桌、六把椅子、六只盘子、罐头、鱼缸与四处水渍已接入；北、南椅子原图各拆两块，保留六个独立 `DiningChair` 节点。鞋柜、沙发、鱼缸、餐桌与六把椅子的实体占地由独立隐藏 `Footprint` 节点维护，视觉尺寸独立配置。盘子和罐头为无碰撞桌面装饰，复用原餐桌查看正文；鱼缸继续通过 `InspectFishTank` 使用原 `cg_02` 门槛和独立谜题定义，电影票、钥匙、帐篷与门禁 ID 保留。电影票和其交互脚点横向对齐到南侧椅子 x=1051.75，原 y、剧情门槛与奖励保留。
+
+2026-10-18 厨房与客厅七图继续使用同一 0.35 构图：窗、流理台、储物柜、厨房草稿纸、小帐篷、收纳盒及独立客厅水渍均通过现有 `whitebox` 的 `artwork` 接入，详细裁区、位置和尺寸见 [美术资产规范](art_assets.md#厨房与客厅七图补充)。窗复用外墙碰撞；流理台与储物柜采用主体矩形，小帐篷由隐藏 `SmallTentFootprint` 保留 `160×160` 椭圆实体，各自视觉尺寸分别维护。小帐篷 F 脚点为 `(593.075, 1005)`、局部矩形 `(-100, -15, 200, 35)`；草稿纸为 `(1235.85, 875)`，使用默认范围；储物柜为 `(1300, 835)`、局部矩形 `(-35, -65, 60, 110)`，收纳盒入口见上文。废纸篓占位移至 `(1310, 982)` 避开新纸张，原正文、奖励、门槛和稳定 ID 保留。本次仅静态核对，未启动引擎、试玩或测试。
 
 `DiningTableFootprint` 当前在 `(1083.425, 698.9)` 覆盖完整 `311.15×185.5` 桌面。`verification/player_scale/table_report.json` 记录四向接近均被餐桌阻挡，`InspectDiningTable` 与 `CollectMovieTicketMemory` 锚点可站立，`failures=[]`；该专项范围独立于完整交互剧情与其他家具验收。
 
@@ -424,7 +446,7 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 
 画室 `studio.tscn` 按来源 1360×1000 画布统一缩放 0.6，房间映射为 816×600，地板从 y=210 开始，活动边界为 `Rect2(18, 210, 780, 375)`。地板墙面用 AtlasTexture 拆层；白底物件与墙体由原 PNG、SVG 轮廓遮罩和画室材质组成。`whitebox.artwork` 绑定轮廓遮罩，材质负责原图采样，现有 `interaction_glow.gd` 继续从 artwork 获取真实轮廓。
 
-`Easel`、`Stool`、`StorageShelf` 与新增 `PaletteSupportShelf` 的视觉尺寸按源图有效区域维护，各有独立隐藏 `Footprint` 节点负责底部碰撞。原 `PaletteTable` 改为无碰撞调色盘，画架清零旧旋转。四幅墙上画、三幅叠放画框及《创世纪》接入图片；门窗、草稿纸和报纸继续占位。`Interactables` 的原 ID、正文、钥匙/碎片与谜题路由保留，交互脚点随新布局迁移；返回门 `ToCorridor` 和出生点 `from_corridor` 名称保留，出生位置为 `(408, 520)`。
+`Easel`、`Stool`、`StorageShelf` 与新增 `PaletteSupportShelf` 的视觉尺寸按源图有效区域维护，各有独立隐藏 `Footprint` 节点负责底部碰撞。原 `PaletteTable` 改为无碰撞调色盘，画架清零旧旋转。四幅墙上画、三幅叠放画框及《创世纪》接入图片；返回门使用共享新门图，窗、草稿纸和报纸继续占位。`Interactables` 的原 ID、正文、钥匙/碎片与谜题路由保留，交互脚点随新布局迁移；返回门 `ToCorridor` 和出生点 `from_corridor` 名称保留，出生位置为 `(408, 520)`。
 
 探索洗笔桶通过 `resources/art/studio/studio_brush_wash_bucket.tres` 直接显示天然透明 PNG 的 `(620, 511, 235, 245)` 区域，0.6 等比显示为 141×147；可视中心 `(486, 261.5)`，独立 `BrushWashBucketFootprint` 在 `(486, 314)` 提供 42×42 椭圆碰撞。F 交互脚点 `(521, 350)` 保留，光晕读取纹理 alpha。白底画室物件继续使用原遮罩材质，洗笔桶谜题背景、布局与故事路由保留。
 

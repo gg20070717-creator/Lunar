@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://dnablsf2xq2nq" path="res://assets/art/ui/pause_menu/pause_menu_main_menu.png" id="5_main_menu"]
 [ext_resource type="Texture2D" uid="uid://cqd2kmgcrbf7q" path="res://assets/art/ui/pause_menu/pause_menu_quit.png" id="6_quit"]
 [ext_resource type="Shader" path="res://shaders/pause_title.gdshader" id="7_title"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/main_menu/main_menu_settings.png" id="8_settings"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_horizontal"]
 shader = ExtResource("2_blur")
@@ -103,9 +104,9 @@ script = ExtResource("5_8fwbo")
 [node name="MainMenu" type="TextureButton" parent="Root/Artwork" unique_id=1790460420]
 layout_mode = 0
 offset_left = 765.0
-offset_top = 527.0
+offset_top = 617.0
 offset_right = 1155.0
-offset_bottom = 607.0
+offset_bottom = 697.0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("5_main_menu")
 texture_pressed = ExtResource("5_main_menu")
@@ -116,9 +117,9 @@ script = ExtResource("5_8fwbo")
 [node name="QuitGame" type="TextureButton" parent="Root/Artwork" unique_id=726585555]
 layout_mode = 0
 offset_left = 765.0
-offset_top = 612.0
+offset_top = 707.0
 offset_right = 1155.0
-offset_bottom = 692.0
+offset_bottom = 787.0
 mouse_default_cursor_shape = 2
 texture_normal = ExtResource("6_quit")
 texture_pressed = ExtResource("6_quit")
@@ -126,6 +127,19 @@ texture_hover = ExtResource("6_quit")
 ignore_texture_size = true
 script = ExtResource("5_8fwbo")
 
+[node name="Settings" type="TextureButton" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 765.0
+offset_top = 527.0
+offset_right = 1155.0
+offset_bottom = 607.0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("8_settings")
+ignore_texture_size = true
+stretch_mode = 5
+script = ExtResource("5_8fwbo")
+
 [connection signal="pressed" from="Root/Artwork/ResumeGame" to="." method="_on_resume_pressed"]
 [connection signal="pressed" from="Root/Artwork/MainMenu" to="." method="_on_main_menu_pressed"]
 [connection signal="pressed" from="Root/Artwork/QuitGame" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="Root/Artwork/Settings" to="." method="_on_settings_pressed"]

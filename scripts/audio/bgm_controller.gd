@@ -29,7 +29,7 @@ func _ready() -> void:
 	_player = AudioStreamPlayer.new()
 	_player.name = "Player"
 	_player.autoplay = false
-	_player.bus = &"Master"
+	_player.bus = &"BGM"
 	_player.max_polyphony = 1
 	_player.volume_db = volume_db
 	_player.stream = _stream

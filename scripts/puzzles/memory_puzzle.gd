@@ -435,7 +435,7 @@ func _layout() -> void:
 	story_panel.size = size if not narrative_pages.is_empty() else size * Vector2(0.8, 0.8)
 	if not narrative_pages.is_empty():
 		var story_fit := minf(w / 1920.0, h / 1080.0)
-		var dialogue_top := (h - 1080.0 * story_fit) * 0.5 + 800.0 * story_fit
+		var dialogue_top := (h - 1080.0 * story_fit) * 0.5 + StoryDialogue.PANEL_RECT.position.y * story_fit
 		if not story_panels.is_empty():
 			var composition_fit := minf(w / STORY_CANVAS_SIZE.x, dialogue_top / STORY_CANVAS_SIZE.y)
 			story_canvas.scale = Vector2.ONE * composition_fit

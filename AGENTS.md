@@ -41,11 +41,13 @@
 
 - 弹窗、CG、收集、对白和谜题通过 GameUI 的现有方法打开，维护 `modal_open`、`view_state_changed` 与关闭清理。
 - 保持场景过渡、首次操作说明、模态输入的拦截顺序。Esc 优先关闭当前模态，一级探索界面再打开暂停；同次输入不连带触发下一层操作。
+- 主菜单与暂停共用设置页；设置返回与 Esc 恢复来源页面，暂停来源保持游戏及音频冻结。`scripts/ui/game_settings.gd` 由菜单外壳持有，音效、音乐和亮度为 `0–100` 整数，默认 `100`，偏好独立保存至 `user://settings.cfg`；拖动实时应用，松开、返回、重置和退出时保存，新游戏保留设置。亮度统一通过菜单外壳的遮罩应用，保持最低约 40% 显示亮度。
 - 当前以首次游玩键帽说明和物件光晕引导交互。场景内常驻“按F交互”提示已移除；剧情文字、字条和解谜阶段提示按现有规则显示。
 - 水井、鱼缸、洗笔桶与帐篷收纳盒共用每局一次的拖拽引导，显示状态由 GameUI 的 `puzzle_drag_hint_seen` 管理。只有有可拖碎片并实际进入选碎片阶段时，才通过 `drag_hint_presented` 记录已显示；已配置前置对白先于引导，重试和重新进入不重复，新游戏重置。
 - 拖拽引导保持非阻塞：可直接拖拽，首块成功投入后淡出；任意非 Esc 按键收起并消耗事件，Esc 继续退出谜题。样式与摆放复用 `memory_drag_hint.gd` 及定义中的 `drag_hint_target_name/drag_hint_rect`，按窗口等比适配并限制在视口内。
-- 普通剧情对白、开场、查看与收集使用各自原白色/浅灰矩形底框，保留项目字体、黑字与字号。`prompt_bubble`、`note_bubble` 世界提示保留气泡素材及原点镜像修复；菜单使用图片文字，月光谜题沿用各自样式。
-- 通用对白复用 `scripts/ui/story_dialogue.gd`，通过页数据配置 speaker、text、expression、shake 等字段。可选页配置 `choices: [{id, text}]`，正文显示完整后在底部原对白框显示编号文字选项，发出 `choice_selected(choice_id)`；选择页普通翻页不可跳过，选择前停用并清理控件，翻页和关闭清理焦点。主角首次出现后在本段对白中持续保留，Luna 使用画外音；不自行添加未提供的演出或声音。页震动由共用对白管理，翻页、结束或关闭时清理偏移。
+- 开场、普通剧情、谜题前置/正式/抵抗、第五幕及装置选择共用 `scripts/ui/story_dialogue.gd` 的纸张对白框；GameUI 的 `collection_panel` 与经 `show_collection()` 打开的物件查看复用 `scripts/ui/dialogue_paper.gd`。纸张资源为 `resources/art/ui/dialogue_paper.tres`，按 1920×1080 参考画布 `(37, 720, 1845, 291)` 等比居中适配；文字放安全区避开折角，保留项目字体、黑字、优先字号及长文缩字号规则。
+- `prompt_bubble`、`note_bubble` 世界提示保留旧气泡素材及原点镜像修复；独立大图 `view_panel` 保留浅灰底，微剧情浮字、首次键帽说明、菜单图片文字及月光谜题各自样式保留。纸张替换继续维护分页、选择、奖励、立绘、震动与模态生命周期。
+- 通用对白复用 `scripts/ui/story_dialogue.gd`，通过页数据配置 speaker、text、expression、shake 等字段。可选页配置 `choices: [{id, text}]`，正文显示完整后在底部纸张对白框显示编号文字选项，发出 `choice_selected(choice_id)`；选择页普通翻页不可跳过，选择前停用并清理控件，翻页和关闭清理焦点。主角首次出现后在本段对白中持续保留，Luna 使用画外音；不自行添加未提供的演出或声音。页震动由共用对白管理，翻页、结束或关闭时清理偏移。
 - 水井、鱼缸、洗笔桶与帐篷收纳盒复用 `scenes/puzzles/memory_puzzle.tscn`，各自使用独立的 `MemoryPuzzleDefinition` 资源；优先配置现有字段扩展布局和行为。整图背景允许仅配置 `moon_environment`，`moon_well` 为可选叠加层。
 - 四处记忆谜题 MOON 初始隐藏水面词与句槽，每投入一块仅显现对应词；Enter 后已投词统一飞出再进入 WORD。A—E 月相按原文件 5/4/3/2/1 从残到满绑定，稳定碎片与剧情 ID 保留；重置和退出清理显词及飞词 Tween。
 - 谜题接收库存快照，尝试状态属于该实例；拖拽、失败重试和退出不消耗库存、不修改共享定义。组合剧情按 `memory_combination_stories.gd:BY_PUZZLE` 的谜题 ID 与左右有序 `choice_id` 匹配；配置 `template_id` 的路由还检查当前句型，阶段四独立启用可选 `sentence_templates`，前三处空列表保持原布局，实例深拷贝路由和待播数据；有路由定义时优先使用路由，旧答案字段只作无路由定义的兼容配置。
@@ -62,7 +64,7 @@
 - BGM 位于常驻游戏根的 `BGM` 节点，复用 `scripts/audio/bgm_controller.gd` 和 `resources/audio/gameplay_bgm.tres` 的单播放器双 clip，沿用 `start_or_resume/suspend/set_puzzle_active/stop` 接口。
 - 整段开场与卧室淡入结束前无音乐，可自由操作界面开始 Hide；四处谜题的前置、微剧情和 CG 使用 SEEK，微剧情回谜题保持 SEEK。第五幕黑底 CG、装置对白及结局正文继续使用 SEEK；探索提示、终局或退出全部剧情切回 Hide。原三处后续普通对白保持 Hide，普通收集、图片和地点切换保留当前播放时间。
 - 暂停与回主菜单显式冻结音频时间，继续恢复；新游戏重建后从 0 开始。主菜单无新增 BGM。
-- Hide/SEEK 双向转换保留 `IMMEDIATE + SAME_POSITION + FADE_CROSS` 及 `fade_beats = 0.03`，当前无 BPM 的 WAV 对应约 30 ms 逐采样平滑。默认 `-6 dB`、Master bus，音效和设置页仍待后续需求。
+- Hide/SEEK 双向转换保留 `IMMEDIATE + SAME_POSITION + FADE_CROSS` 及 `fade_beats = 0.03`，当前无 BPM 的 WAV 对应约 30 ms 逐采样平滑。播放器基准音量保持 `-6 dB`，输出至 `BGM` bus；`BGM` 与 `SFX` 汇入 `Master`，由设置按线性增益独立控制，`100` 保持原音量、`0` 静音。后续音效播放器使用 `SFX` bus，当前未新增音效素材。
 - 音轨原文件、导入与循环参数遵循音频规范。成对维护帧长、采样率、音乐起点和循环范围；源文件校验与静态参数相同不代表听感已验收。
 
 ## 资源与交付

@@ -1,0 +1,164 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/settings_menu.gd" id="1_script"]
+[ext_resource type="Shader" path="res://shaders/pause_gaussian_blur.gdshader" id="2_blur"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/settings_menu/settings_overlay.png" id="3_overlay"]
+[ext_resource type="Script" path="res://scripts/ui/settings_slider.gd" id="4_slider"]
+[ext_resource type="Font" path="res://ui_font.tres" id="5_font"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/settings_menu/settings_reset.png" id="6_reset"]
+[ext_resource type="Texture2D" path="res://assets/art/ui/settings_menu/settings_back.png" id="7_back"]
+[ext_resource type="Script" path="res://scripts/ui/menu_hover_button.gd" id="8_button"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_horizontal"]
+shader = ExtResource("2_blur")
+shader_parameter/direction = Vector2(1, 0)
+shader_parameter/radius = 4.0
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_vertical"]
+shader = ExtResource("2_blur")
+shader_parameter/direction = Vector2(0, 1)
+shader_parameter/radius = 4.0
+
+[node name="SettingsMenu" type="CanvasLayer"]
+layer = 40
+visible = false
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="BeforeBlur" type="BackBufferCopy" parent="Root"]
+copy_mode = 2
+
+[node name="BlurHorizontal" type="ColorRect" parent="Root"]
+material = SubResource("ShaderMaterial_horizontal")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BetweenPasses" type="BackBufferCopy" parent="Root"]
+copy_mode = 2
+
+[node name="BlurVertical" type="ColorRect" parent="Root"]
+material = SubResource("ShaderMaterial_vertical")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Artwork" type="Control" parent="Root"]
+texture_filter = 2
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+
+[node name="Overlay" type="TextureRect" parent="Root/Artwork"]
+layout_mode = 0
+offset_right = 1920.0
+offset_bottom = 1080.0
+mouse_filter = 2
+texture = ExtResource("3_overlay")
+expand_mode = 1
+
+[node name="SfxSlider" type="Control" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 1311.0
+offset_top = 304.0
+offset_right = 1511.0
+offset_bottom = 394.0
+focus_mode = 2
+tooltip_text = "音效音量：点击或拖动调节"
+script = ExtResource("4_slider")
+
+[node name="MusicSlider" type="Control" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 1311.0
+offset_top = 403.0
+offset_right = 1511.0
+offset_bottom = 493.0
+focus_mode = 2
+tooltip_text = "背景音乐：点击或拖动调节"
+script = ExtResource("4_slider")
+
+[node name="BrightnessSlider" type="Control" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 1311.0
+offset_top = 502.0
+offset_right = 1511.0
+offset_bottom = 592.0
+focus_mode = 2
+tooltip_text = "亮度：点击或拖动调节"
+script = ExtResource("4_slider")
+
+[node name="SfxValue" type="Label" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 1530.0
+offset_top = 328.0
+offset_right = 1640.0
+offset_bottom = 388.0
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 36
+text = "100"
+vertical_alignment = 1
+
+[node name="MusicValue" type="Label" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 1530.0
+offset_top = 427.0
+offset_right = 1640.0
+offset_bottom = 487.0
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 36
+text = "100"
+vertical_alignment = 1
+
+[node name="BrightnessValue" type="Label" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 1530.0
+offset_top = 526.0
+offset_right = 1640.0
+offset_bottom = 586.0
+mouse_filter = 2
+theme_override_fonts/font = ExtResource("5_font")
+theme_override_font_sizes/font_size = 36
+text = "100"
+vertical_alignment = 1
+
+[node name="Reset" type="TextureButton" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 775.0
+offset_top = 707.0
+offset_right = 1145.0
+offset_bottom = 787.0
+mouse_default_cursor_shape = 2
+tooltip_text = "恢复默认音量与亮度"
+texture_normal = ExtResource("6_reset")
+ignore_texture_size = true
+script = ExtResource("8_button")
+
+[node name="Back" type="TextureButton" parent="Root/Artwork"]
+layout_mode = 0
+offset_left = 775.0
+offset_top = 797.0
+offset_right = 1145.0
+offset_bottom = 877.0
+mouse_default_cursor_shape = 2
+texture_normal = ExtResource("7_back")
+ignore_texture_size = true
+script = ExtResource("8_button")

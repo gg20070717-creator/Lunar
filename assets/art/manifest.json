@@ -4785,6 +4785,891 @@
         "fade_shape": "circle",
         "circle_outer_radius": "参考圆心到Atlas裁区最近边的距离"
       }
+    },
+    {
+      "id": "settings_overlay",
+      "source_filename": "设置+背景.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/设置+背景.png",
+      "path": "res://assets/art/ui/settings_menu/settings_overlay.png",
+      "category": "ui",
+      "scene": "settings_menu",
+      "usage": "runtime_overlay",
+      "canvas_size": [
+        1920,
+        1080
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "source_alpha_range": [
+        142,
+        255
+      ],
+      "sha256": "d2a658f9692dc684a6c69c5a9f1d624564cf0ca0fe72d47dcff84577790645d7",
+      "note": "主菜单与暂停共用设置底板，整张显示；保留原 RGBA（26,46,101,142）半透明蓝背景、设置标题及三行标签。",
+      "background_rgba": [
+        26,
+        46,
+        101,
+        142
+      ]
+    },
+    {
+      "id": "settings_reference",
+      "source_filename": "设置界面.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/设置界面.png",
+      "path": "res://assets/art/ui/settings_menu/settings_reference.png",
+      "category": "ui",
+      "scene": "settings_menu",
+      "usage": "reference_composition",
+      "canvas_size": [
+        1920,
+        1080
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "source_alpha_range": [
+        142,
+        255
+      ],
+      "sha256": "32cec7f21208469ce03153a5e28a96aab1d3bf77c85fd63ee64ea9972c197903",
+      "note": "用户完整设置界面参考图，保留原字节归档；运行界面用独立横条、箭头与按钮构建，不叠加此参考整图。",
+      "background_rgba": [
+        26,
+        46,
+        101,
+        142
+      ]
+    },
+    {
+      "id": "settings_handle",
+      "source_filename": "箭头.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/箭头.png",
+      "path": "res://assets/art/ui/settings_menu/settings_handle.png",
+      "category": "ui",
+      "scene": "settings_menu",
+      "usage": "runtime_slider_handle",
+      "canvas_size": [
+        50,
+        50
+      ],
+      "alpha_bounds": [
+        6,
+        11,
+        42,
+        43
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "e9702268aed0d35d99a15516d8df04541e05b3d3d088f3c2eefdf0ee207911b7",
+      "note": "音效、背景音乐与亮度三条滑杆共用箭头，保留50×50原画布与透明边，沿横条移动。"
+    },
+    {
+      "id": "settings_back",
+      "source_filename": "返回.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/返回.png",
+      "path": "res://assets/art/ui/settings_menu/settings_back.png",
+      "category": "ui",
+      "scene": "settings_menu",
+      "usage": "runtime_button",
+      "canvas_size": [
+        370,
+        80
+      ],
+      "alpha_bounds": [
+        118,
+        17,
+        255,
+        60
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "371f9cc0444194bc7250e5ff10d4aa3397fb6df6d523b9001c3f88d215edc466",
+      "note": "设置界面返回图片按钮，保留370×80原画布，复用菜单悬停与按压反馈。"
+    },
+    {
+      "id": "settings_reset",
+      "source_filename": "重置为默认值.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/重置为默认值.png",
+      "path": "res://assets/art/ui/settings_menu/settings_reset.png",
+      "category": "ui",
+      "scene": "settings_menu",
+      "usage": "runtime_button",
+      "canvas_size": [
+        370,
+        80
+      ],
+      "alpha_bounds": [
+        47,
+        17,
+        327,
+        62
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "aaa430a18d5a89b45445aa60f7d31e3898a0e0859481d1c9780ede27d9491918",
+      "note": "设置界面重置为默认值图片按钮，保留370×80原画布，复用菜单悬停与按压反馈。"
+    },
+    {
+      "id": "settings_track",
+      "source_filename": "音量线.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/音量线.png",
+      "path": "res://assets/art/ui/settings_menu/settings_track.png",
+      "category": "ui",
+      "scene": "settings_menu",
+      "usage": "runtime_slider_track",
+      "canvas_size": [
+        200,
+        90
+      ],
+      "alpha_bounds": [
+        13,
+        54,
+        189,
+        57
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "fa08b38014a8ad74761ea1b48464b3f3763bbc769440a54a529506115c36e16b",
+      "note": "音效、背景音乐与亮度三条滑杆共用原200×90透明横条；数值使用独立Label显示于横条右侧。"
+    },
+    {
+      "id": "dialogue_paper",
+      "source_filename": "对话框.png",
+      "source_path": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/对话框.png",
+      "path": "res://assets/art/ui/panels/dialogue_paper.png",
+      "category": "ui",
+      "scene": "shared_dialogue",
+      "usage": "runtime_dialogue_panel",
+      "canvas_size": [
+        1920,
+        1080
+      ],
+      "alpha_bounds": [
+        37,
+        720,
+        1882,
+        1011
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "5860ef79c96ee5d642a760d43a8b61b49d22e6775df15a4e9fca9cda09de98d1",
+      "regions": [
+        {
+          "path": "res://resources/art/ui/dialogue_paper.tres",
+          "region": [
+            37,
+            720,
+            1845,
+            291
+          ]
+        }
+      ],
+      "note": "用户提供1920×1080原透明PNG，原字节与透明通道保留。Atlas裁去透明留白，StoryDialogue和GameUI.collection_panel共用DialoguePaper图片皮肤；参考位置(37,720)，显示尺寸1845×291并等比适配，保留项目字体、字号与黑字。世界提示继续使用dialogue_bubble。"
+    },
+    {
+      "id": "first_floor_kitchen_window",
+      "source_filename": "厨房窗.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/厨房窗.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_kitchen_window.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        3933,
+        1141,
+        3989,
+        1688
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "098a1240d7116b16d6420b8accdfe6fe5b8c1f523abbdfe1fa83217a8f481522",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_kitchen_window.tres",
+          "region": [
+            3933,
+            1141,
+            56,
+            547
+          ]
+        }
+      ],
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      },
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；场景按原4000×3000画布统一映射，最近邻过滤由场景继承。"
+    },
+    {
+      "id": "first_floor_kitchen_counter",
+      "source_filename": "厨房梳理台.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/厨房梳理台.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_kitchen_counter.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        2575,
+        2390,
+        4000,
+        2784
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "943ae1dc3473df10900bac6b204829b556c5393594121b227e12862140ca2a63",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_kitchen_counter.tres",
+          "region": [
+            2583,
+            2390,
+            1169,
+            394
+          ]
+        }
+      ],
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      },
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；场景按原4000×3000画布统一映射，最近邻过滤由场景继承。Atlas按alpha>0最大8连通主体的外接矩形裁图，保留主体全部柔边；排除最右54像素短线和左侧35像素散点。另一团35像素、alpha最高20的点位于裁图矩形内部，随原图保留。完整源图及总alpha外接矩形保留。",
+      "crop_analysis": {
+        "method": "largest_8_connected_alpha_component",
+        "alpha_threshold": 0,
+        "component_pixels": 457550,
+        "component_bounds": [
+          2583,
+          2390,
+          3752,
+          2784
+        ],
+        "outside_atlas_components": [
+          {
+            "pixels": 54,
+            "alpha_bounds": [
+              3982,
+              2781,
+              4000,
+              2784
+            ],
+            "max_alpha": 203
+          },
+          {
+            "pixels": 35,
+            "alpha_bounds": [
+              2575,
+              2754,
+              2582,
+              2759
+            ],
+            "max_alpha": 29
+          }
+        ],
+        "retained_detached_components": [
+          {
+            "pixels": 35,
+            "alpha_bounds": [
+              2599,
+              2770,
+              2606,
+              2775
+            ],
+            "max_alpha": 20
+          }
+        ]
+      }
+    },
+    {
+      "id": "first_floor_kitchen_puddle",
+      "source_filename": "厨房水渍.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/厨房水渍.png",
+      "path": "res://assets/art/environments/first_floor/decals/first_floor_kitchen_puddle.png",
+      "category": "decals",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        3246,
+        1028,
+        3774,
+        1361
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "24b3811cc4536d14b1629b97767ee810e4cedb00c5f3f95b299d5af669c42ff7",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_kitchen_puddle.tres",
+          "region": [
+            3246,
+            1028,
+            528,
+            333
+          ]
+        }
+      ],
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      },
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；场景按原4000×3000画布统一映射，最近邻过滤由场景继承。"
+    },
+    {
+      "id": "first_floor_tent_storage_box",
+      "source_filename": "积水储物盒.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/积水储物盒.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_tent_storage_box.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        1946,
+        1324,
+        2091,
+        1442
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "b7a11a1efefef07e5ee75f9cbcdda889e28f8ecd3f2a73cd03c9124408e10b5b",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_tent_storage_box.tres",
+          "region": [
+            1946,
+            1324,
+            145,
+            118
+          ]
+        }
+      ],
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；帐篷旁独立收纳盒与本批其余图片按原4000×3000画布统一映射，最近邻过滤由场景继承。保留原交互节点、阶段四稳定ID与剧情门槛，摆放及脚点由场景维护。",
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      }
+    },
+    {
+      "id": "first_floor_small_tent",
+      "source_filename": "帐篷.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/帐篷.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_small_tent.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        1324,
+        2116,
+        1865,
+        2595
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "bfda45d9e092a1585476ec234d6a2415d5e63c57051cec73c8069caef15ee35a",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_small_tent.tres",
+          "region": [
+            1324,
+            2116,
+            541,
+            479
+          ]
+        }
+      ],
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      },
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；场景按原4000×3000画布统一映射，最近邻过滤由场景继承。"
+    },
+    {
+      "id": "first_floor_kitchen_draft_paper",
+      "source_filename": "草稿纸.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/草稿纸.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_kitchen_draft_paper.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        3327,
+        2513,
+        3535,
+        2711
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "20239e70ec60bc8309eb954a457589a1d421c33ce98546d1800bfef725574939",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_kitchen_draft_paper.tres",
+          "region": [
+            3327,
+            2513,
+            208,
+            198
+          ]
+        }
+      ],
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      },
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；场景按原4000×3000画布统一映射，最近邻过滤由场景继承。"
+    },
+    {
+      "id": "first_floor_kitchen_storage_cabinet",
+      "source_filename": "厨房储物柜.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/厨房储物柜.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_kitchen_storage_cabinet.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        3742,
+        1911,
+        3978,
+        2803
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "5f7d4e783445ab22086fb4cf3e26ec90c208266b40d43cdfdae03e990f939624",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_kitchen_storage_cabinet.tres",
+          "region": [
+            3742,
+            1911,
+            236,
+            892
+          ]
+        }
+      ],
+      "layout_mapping": {
+        "scale": 0.35,
+        "offset": [
+          35,
+          64
+        ],
+        "formula": "world_position = source_position * 0.35 + (35, 64)"
+      },
+      "note": "用户原始透明PNG按原字节归档，Atlas裁去透明留白；场景按原4000×3000画布统一映射，最近邻过滤由场景继承。"
+    },
+    {
+      "id": "return_door",
+      "source_filename": "门.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/门＆传送门.zip",
+      "source_entry": "门＆传送门/门.png",
+      "path": "res://assets/art/shared/props/return_door.png",
+      "category": "props",
+      "scene": "shared",
+      "canvas_size": [
+        200,
+        200
+      ],
+      "alpha_bounds": [
+        16,
+        20,
+        180,
+        72
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "6d7fe1713e9c34176200b9fd049a7689cf5bf7ac95d322754edbaa695dc44ee3",
+      "regions": [
+        {
+          "path": "res://resources/art/shared/return_door.tres",
+          "region": [
+            16,
+            20,
+            164,
+            52
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。"
+    },
+    {
+      "id": "consciousness_portal",
+      "source_filename": "传送门.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/门＆传送门.zip",
+      "source_entry": "门＆传送门/传送门.png",
+      "path": "res://assets/art/shared/props/consciousness_portal.png",
+      "category": "props",
+      "scene": "shared",
+      "canvas_size": [
+        200,
+        200
+      ],
+      "alpha_bounds": [
+        40,
+        12,
+        157,
+        164
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "b3d50cd2e97ca8e17351b1a33a88137d51558718faac93989ad36c50353e6acc",
+      "regions": [
+        {
+          "path": "res://resources/art/shared/consciousness_portal.tres",
+          "region": [
+            40,
+            12,
+            117,
+            152
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。"
+    },
+    {
+      "id": "first_floor_storage_wall_border",
+      "source_filename": "仓库墙体.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/仓库(3).zip",
+      "source_entry": "仓库墙体.png",
+      "path": "res://assets/art/environments/first_floor/backgrounds/first_floor_storage_wall_border.png",
+      "category": "backgrounds",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        0,
+        386,
+        1122,
+        1410
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "b58f9974ac7c0d9847cd90e16dcaa1ba9125cd6557c5a6d138e70ad7b88d4c5b",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_wall_border.tres",
+          "region": [
+            0,
+            386,
+            1122,
+            1024
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。",
+      "crop_analysis": {
+        "method": "single_8_connected_alpha_component",
+        "alpha_threshold": 0,
+        "component_pixels": 101393,
+        "component_bounds": [
+          0,
+          386,
+          1122,
+          1410
+        ],
+        "thresholds_0_8_32_128_240_same_bounds": true
+      }
+    },
+    {
+      "id": "first_floor_storage_floor_wall",
+      "source_filename": "仓库墙壁地面.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/仓库(3).zip",
+      "source_entry": "仓库墙壁地面.png",
+      "path": "res://assets/art/environments/first_floor/backgrounds/first_floor_storage_floor_wall.png",
+      "category": "backgrounds",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        0,
+        397,
+        2806,
+        2660
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "03b0c0e4bab56e4283595d6434197f1f5abb0c2c0130c7f33fdf3545cb350293",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_floor_wall.tres",
+          "region": [
+            0,
+            397,
+            1171,
+            1024
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。 Atlas按alpha>0最大8连通主体外接矩形裁图，保留主体低alpha柔边并排除远端脏点；裁图矩形内部像素按源图保留。",
+      "crop_analysis": {
+        "method": "largest_8_connected_alpha_component_bounds",
+        "alpha_threshold": 0,
+        "components_count": 76,
+        "component_pixels": 1146313,
+        "component_bounds": [
+          0,
+          397,
+          1171,
+          1421
+        ],
+        "opaque_component_threshold": 128,
+        "opaque_component_pixels": 1117339,
+        "opaque_component_bounds": [
+          0,
+          397,
+          1103,
+          1410
+        ],
+        "outside_atlas_opaque_components": [
+          {
+            "pixels": 99,
+            "alpha_bounds": [
+              2787,
+              2537,
+              2790,
+              2570
+            ]
+          },
+          {
+            "pixels": 7,
+            "alpha_bounds": [
+              2770,
+              2440,
+              2771,
+              2447
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "first_floor_storage_window",
+      "source_filename": "仓库窗户.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/仓库(3).zip",
+      "source_entry": "仓库窗户.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_storage_window.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        725,
+        469,
+        986,
+        653
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "0a80fcc84e0aa344dc28f55e113f05a8e0d95e2f44d80b2964fc3b1c477e83e0",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_window.tres",
+          "region": [
+            725,
+            469,
+            261,
+            184
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。"
+    },
+    {
+      "id": "first_floor_storage_door_01",
+      "source_filename": "门1.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/仓库(3).zip",
+      "source_entry": "门1.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_storage_door_01.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        449,
+        1352,
+        675,
+        1406
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "e52211f0a300a72cb0958cd082c118c4ecc1306fd052b97d5170792ae7380faa",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_door_01.tres",
+          "region": [
+            449,
+            1352,
+            226,
+            54
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps。门1与门2裁区像素为精确上下镜像，分别显示仓库关闭入口的内外两侧，本图用于内侧门片；与仓库构图共同按source_position×0.35+(35,64)布置，开门时随StorageRoomGate父节点共同隐藏，保留原钥匙与会话开门流程。",
+      "usage": "closed_gate_inner_leaf"
+    },
+    {
+      "id": "first_floor_storage_door_02",
+      "source_filename": "门2.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/仓库(3).zip",
+      "source_entry": "门2.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_storage_door_02.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        4000,
+        3000
+      ],
+      "alpha_bounds": [
+        450,
+        1386,
+        676,
+        1440
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "08440e32b2d5d7ea2ddf017e513b9e5c4b1bba92b89a7bc7b264fdef78b38ee0",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_door_02.tres",
+          "region": [
+            450,
+            1386,
+            226,
+            54
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps。门1与门2裁区像素为精确上下镜像，分别显示仓库关闭入口的内外两侧，本图用于外侧门片；与仓库构图共同按source_position×0.35+(35,64)布置，开门时随StorageRoomGate父节点共同隐藏，保留原钥匙与会话开门流程。",
+      "usage": "closed_gate_outer_leaf"
+    },
+    {
+      "id": "first_floor_movie_ticket",
+      "source_filename": "1C75F91981C2BB86DA25D97934346AA5.png",
+      "source_path": "C:/Users/muziguoguozhu/AppData/Local/Temp/1C75F91981C2BB86DA25D97934346AA5.png",
+      "path": "res://assets/art/environments/first_floor/props/first_floor_movie_ticket.png",
+      "category": "props",
+      "scene": "first_floor",
+      "canvas_size": [
+        2740,
+        2628
+      ],
+      "alpha_bounds": [
+        880,
+        124,
+        2062,
+        2433
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "f25ad8c35f5b28f8db28da7bb20cd156354e74d4ace6f90af9c4050d7e6ed30a",
+      "regions": [
+        {
+          "path": "res://resources/art/first_floor/first_floor_movie_ticket.tres",
+          "region": [
+            880,
+            124,
+            1182,
+            2309
+          ]
+        }
+      ],
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。"
     }
   ]
 }
