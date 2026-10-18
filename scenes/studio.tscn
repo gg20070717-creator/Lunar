@@ -15,7 +15,7 @@
 [ext_resource type="Script" path="res://scripts/collect_memory_item.gd" id="collect_memory"]
 [ext_resource type="Script" path="res://scripts/studio_genesis_interaction.gd" id="genesis"]
 [ext_resource type="Script" path="res://scripts/brush_wash_interaction.gd" id="brush_wash"]
-[ext_resource type="Texture2D" path="res://assets/art/cg/act_02/studio_sketch_placeholder.svg" id="sketch_artwork"]
+[ext_resource type="Texture2D" path="res://resources/art/studio/studio_draft_paper.tres" id="sketch_artwork"]
 [ext_resource type="Texture2D" path="res://resources/art/shared/floor_stain_01.tres" id="art_floor_stain"]
 [ext_resource type="Texture2D" path="res://resources/art/shared/return_door.tres" id="art_return_door"]
 
@@ -374,11 +374,14 @@ material = ExtResource("studio_stacked_canvas_03_material")
 position = Vector2(141, 520)
 rotation = -0.12
 size = Vector2(34, 42)
-label = "草稿纸"
+label = ""
 solid = false
 oval = false
 shade = Color(0.98, 0.98, 0.98, 1)
 label_size = 10
+artwork = ExtResource("sketch_artwork")
+artwork_size = Vector2(34, 31.980663)
+
 
 [node name="GenesisBook" parent="Geometry" instance=ExtResource("2")]
 position = Vector2(746.7, 382.2)

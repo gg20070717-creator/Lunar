@@ -2,7 +2,7 @@ extends RefCounted
 ## Act Five text and stable ending IDs. Images can be added independently.
 
 const FALSE_ENDING_PAGES: Array[Dictionary] = [
-	{"text": "皎皎明月高悬于天际，从第一个新生儿呱呱落地，直到最后一名老者类合上双眼。", "show_protagonist": false},
+	{"text": "皎皎明月高悬于天际，从第一个新生儿呱呱落地，直到最后一名老者类合上双眼。", "show_protagonist": false, "cg_image": "res://resources/art/cg/act_05/ending_false.tres", "cg_replace": true},
 	{"text": "引力波引擎研发成功后，你顺利升职加薪，坐上了事少钱多的高层管理岗位。", "show_protagonist": false},
 	{"text": "小泠的作品被藏家相中，画作被成批运进市中心美术馆参展，随后又在拍卖行卖出了不可思议的高价。", "show_protagonist": false},
 	{"text": "多年以后，你们搬回了故乡，在一座简朴的小房子里度过余生。", "show_protagonist": false},
@@ -10,7 +10,7 @@ const FALSE_ENDING_PAGES: Array[Dictionary] = [
 ]
 
 const TRUTH_RECOLLECTION_PAGES: Array[Dictionary] = [
-	{"text": "所有回忆浮上脑海。你终于记起了一切。", "show_protagonist": false},
+	{"text": "所有回忆浮上脑海。你终于记起了一切。", "show_protagonist": false, "cg_clear": true},
 	{"text": "意识深潜。这是弦音科技应对这场灾难的最后手段。", "show_protagonist": false},
 	{"text": "你被一小队幸存者救起，送进了弦音科技公司在地下秘密设置的避难所。这里安置着公司早年被迫中止的研究项目——意识深潜装置。", "show_protagonist": false},
 	{"text": "将装置接入大脑，就能够备份意识，上传到一段虚假的回忆当中。", "show_protagonist": false},
@@ -46,5 +46,5 @@ const TRUE_ENDING_PAGES: Array[Dictionary] = [
 	{"text": "你剧烈咳嗽，挣扎着从培养缸中爬了出来。粘稠的液体顺着脊椎滑落，你脚下一软，跪倒在地。", "show_protagonist": false},
 	{"text": "你贴着真实的地面，感受着真实的心跳，在未能适应身体的眩晕中感受到了久违的实感。", "show_protagonist": false},
 	{"text": "你不清楚自己有没有足够的勇气去面对一切。你深吸一口气，把最后一丝培养液的甜味从肺里挤出去。", "show_protagonist": false},
-	{"text": "然后你站起身，向前迈步，走进现实。", "show_protagonist": false},
+	{"text": "然后你站起身，向前迈步，走进现实。", "show_protagonist": false, "cg_image": "res://resources/art/cg/act_05/ending_true.tres", "cg_replace": true},
 ]

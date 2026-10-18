@@ -37,6 +37,8 @@ const LUNA_PAGES: Array[Dictionary] = [
 		"speaker": "",
 		"text": "所有结果完全符合公式推导。",
 		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_04/cg_04_luna.tres",
+		"cg_replace": true,
 	},
 	{
 		"speaker": "",
@@ -85,6 +87,7 @@ const TRUTH_PAGES: Array[Dictionary] = [
 		"speaker": "",
 		"text": "现实世界以月球为圆心扩散出一圈圈涟漪，穿过你的意识，让你眼前的世界奇异地闪动一帧。",
 		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_04/cg_04_truth_01.tres",
 	},
 	{
 		"speaker": "",
@@ -120,11 +123,13 @@ const TRUTH_PAGES: Array[Dictionary] = [
 		"speaker": "",
 		"text": "你心脏狂跳，脑中画面纷飞——没有看成的电影，画布上涂抹的月光——小泠一定不能有事——",
 		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_04/cg_04_truth_02.tres",
 	},
 	{
 		"speaker": "",
 		"text": "登上距离你家几百米之遥的高地，你的心猛地一沉。",
 		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_04/cg_04_truth_03.tres",
 	},
 	{
 		"speaker": "",

@@ -8,6 +8,7 @@ signal choice_selected(choice_id: StringName)
 const FONT = preload("res://ui_font.tres")
 const DialogueBubble = preload("res://scripts/ui/dialogue_bubble.gd")
 const DialoguePaper = preload("res://scripts/ui/dialogue_paper.gd")
+const StoryCGView = preload("res://scripts/ui/story_cg_view.gd")
 const REFERENCE_SIZE := Vector2(1920, 1080)
 const PANEL_RECT := DialoguePaper.REFERENCE_RECT
 const SHAKE_DURATION := 0.55
@@ -21,12 +22,15 @@ const PORTRAIT_FILES := {
 	&"teary": "res://assets/art/characters/protagonist/protagonist_teary.png",
 }
 @export var characters_per_second := 42.0
+## Puzzles keep their composition on the separate black story panel.
+var render_cg_images := true
 
 var pages: Array[Dictionary] = []
 var page_index := 0
 var active := false
 var artwork: Control
 var portrait: TextureRect
+var cg_view: StoryCGView
 var panel: DialoguePaper
 var speaker_label: Label
 var body_label: Label
@@ -56,6 +60,10 @@ func _ready() -> void:
 	artwork.size = REFERENCE_SIZE
 	artwork.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(artwork)
+	cg_view = StoryCGView.new()
+	cg_view.name = "StoryCG"
+	cg_view.size = Vector2(REFERENCE_SIZE.x, PANEL_RECT.position.y)
+	artwork.add_child(cg_view)
 	for expression: StringName in PORTRAIT_FILES:
 		var texture := AtlasTexture.new()
 		texture.atlas = load(PORTRAIT_FILES[expression]) as Texture2D
@@ -242,6 +250,10 @@ func start(story_pages: Array[Dictionary]) -> void:
 	if story_pages.is_empty():
 		return
 	pages.assign(story_pages.duplicate(true))
+	if render_cg_images:
+		cg_view.prepare(pages)
+	else:
+		cg_view.clear()
 	page_index = 0
 	_portrait_present = false
 	portrait.hide()
@@ -251,6 +263,8 @@ func start(story_pages: Array[Dictionary]) -> void:
 
 func _show_page() -> void:
 	var page: Dictionary = pages[page_index]
+	if render_cg_images:
+		cg_view.show_page(page)
 	_reset_shake()
 	if bool(page.get("shake", false)):
 		_shake_remaining = SHAKE_DURATION
@@ -361,6 +375,7 @@ func handle_input(event: InputEvent) -> bool:
 
 func stop() -> void:
 	active = false
+	cg_view.clear()
 	_clear_choices()
 	_portrait_present = false
 	portrait.hide()
@@ -369,3 +384,90 @@ func stop() -> void:
 	if is_instance_valid(_portrait_tween):
 		_portrait_tween.kill()
 	hide()
+
+
+static func save_value(value: Variant) -> Variant:
+	# Save files contain plain JSON values, never live resources or node handles.
+	if value is StringName:
+		return String(value)
+	if value is Dictionary:
+		var result: Dictionary = {}
+		for key: Variant in value:
+			result[String(key)] = save_value(value[key])
+		return result
+	if value is Array:
+		var array_result: Array = []
+		for item: Variant in value:
+			array_result.append(save_value(item))
+		return array_result
+	return value
+
+
+func export_save_data() -> Dictionary:
+	return {
+		"pages": save_value(pages),
+		"page_index": page_index,
+		"revealed_characters": body_label.visible_characters,
+		"portrait_present": _portrait_present,
+		"choice_index": _choice_index,
+	}
+
+
+func import_save_data(data: Dictionary) -> bool:
+	var saved_pages: Variant = data.get("pages", [])
+	var saved_index: Variant = data.get("page_index", 0)
+	var saved_reveal: Variant = data.get("revealed_characters", 0)
+	var saved_choice: Variant = data.get("choice_index", 0)
+	if not saved_pages is Array or saved_pages.is_empty() or saved_pages.size() > 1000:
+		return false
+	if not _save_number(saved_index) or not _save_number(saved_reveal) or not _save_number(saved_choice):
+		return false
+	if int(saved_index) < 0 or int(saved_index) >= saved_pages.size():
+		return false
+	var restored_pages: Array[Dictionary] = []
+	for value: Variant in saved_pages:
+		if not value is Dictionary or not value.get("text", "") is String:
+			return false
+		if value.has("choices"):
+			if not value["choices"] is Array:
+				return false
+			for choice: Variant in value["choices"]:
+				if not choice is Dictionary or not choice.get("text", "") is String:
+					return false
+		restored_pages.append(value.duplicate(true))
+	stop()
+	pages.assign(restored_pages)
+	page_index = int(saved_index)
+	_portrait_present = false
+	for index in range(page_index):
+		var page: Dictionary = pages[index]
+		var speaker := String(page.get("speaker", ""))
+		_portrait_present = _portrait_present or bool(page.get("show_protagonist", speaker in ["主角", "你", "protagonist"]))
+	if render_cg_images:
+		cg_view.prepare(pages)
+		for index in range(page_index):
+			cg_view.show_page(pages[index])
+	active = true
+	modulate.a = 1.0
+	show()
+	_show_page()
+	if render_cg_images and cg_view.has_method("settle"):
+		cg_view.call("settle")
+	if is_instance_valid(_portrait_tween):
+		_portrait_tween.kill()
+	portrait.position = PORTRAIT_POSITION
+	portrait.modulate.a = 1.0
+	_reset_shake()
+	var text_length := body_label.text.length()
+	var revealed := text_length if int(saved_reveal) < 0 else clampi(int(saved_reveal), 0, text_length)
+	_revealed = float(revealed)
+	body_label.visible_characters = revealed
+	var restored_choice := clampi(int(saved_choice), 0, maxi(0, _choices.size() - 1))
+	_update_hint()
+	if _choices_visible:
+		_focus_choice(restored_choice)
+	return true
+
+
+static func _save_number(value: Variant) -> bool:
+	return (value is int or value is float) and is_finite(float(value)) and float(value) == floorf(float(value))

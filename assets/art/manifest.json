@@ -5787,6 +5787,298 @@
         }
       ],
       "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。"
+    },
+    {
+      "id": "cg_03_work",
+      "source_filename": "CG3-1.png",
+      "source_path": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/CG3-1.png",
+      "path": "res://assets/art/cg/act_03/cg_03_work.png",
+      "category": "cg",
+      "scene": "cg_03",
+      "canvas_size": [
+        3508,
+        2480
+      ],
+      "pixel_mode": "RGBA",
+      "source_has_alpha": true,
+      "alpha_bounds": [
+        0,
+        0,
+        3508,
+        2480
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "813e59fb2ebebe14f54fbe6bd37d035c2556de9b8d7684de63620ac6f51d3548",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_03/cg_03_work.tres",
+          "region": [
+            0,
+            0,
+            3508,
+            2480
+          ],
+          "usage": "full_work_scene"
+        }
+      ],
+      "note": "第三幕单幅CG：蓝色加班工作台、屏幕与来电手机；完整画布显示。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。"
+    },
+    {
+      "id": "cg_03_dinner",
+      "source_filename": "CG3-2.png",
+      "source_path": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/CG3-2.png",
+      "path": "res://assets/art/cg/act_03/cg_03_dinner.png",
+      "category": "cg",
+      "scene": "cg_03",
+      "canvas_size": [
+        3508,
+        2480
+      ],
+      "pixel_mode": "RGBA",
+      "source_has_alpha": true,
+      "alpha_bounds": [
+        0,
+        0,
+        3508,
+        2480
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "4174edfdde279cd7cd106c6487f2048bf098b4d803b85790816c05f053d8dab2",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_03/cg_03_dinner.tres",
+          "region": [
+            0,
+            0,
+            3508,
+            2480
+          ],
+          "usage": "full_dinner_scene"
+        }
+      ],
+      "note": "第三幕单幅CG：暖色室内两人共进披萨晚餐；完整画布显示。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。"
+    },
+    {
+      "id": "cg_04_luna",
+      "source_filename": "第四幕cg luna导向.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/第四幕cg.zip",
+      "source_entry": "第四幕cg/第四幕cg luna导向.png",
+      "path": "res://assets/art/cg/act_04/cg_04_luna.png",
+      "category": "cg",
+      "scene": "cg_04_luna",
+      "canvas_size": [
+        1920,
+        1080
+      ],
+      "pixel_mode": "RGBA",
+      "source_has_alpha": true,
+      "alpha_bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "a4427da518601f63d46421d305a459d26046f4480a74ea269fbd29886289e113",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_04/cg_04_luna.tres",
+          "region": [
+            0,
+            0,
+            1920,
+            1080
+          ],
+          "usage": "full_luna_branch"
+        }
+      ],
+      "note": "第四幕Luna导向单幅CG：粉月下两人牵手，保留完整画布；按素材与正式分支映射到cg_04。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。"
+    },
+    {
+      "id": "cg_04_truth",
+      "source_filename": "第四幕cg 真实导向.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/第四幕cg.zip",
+      "source_entry": "第四幕cg/第四幕cg 真实导向.png",
+      "path": "res://assets/art/cg/act_04/cg_04_truth.png",
+      "category": "cg",
+      "scene": "cg_04_truth",
+      "canvas_size": [
+        1920,
+        1080
+      ],
+      "pixel_mode": "RGBA",
+      "source_has_alpha": true,
+      "alpha_bounds": [
+        0,
+        0,
+        1920,
+        1080
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "d4c76723c3e9a65307fb56d4a2870cb1c3bc23db474eb15b1486b002b84b5259",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_04/cg_04_truth_01.tres",
+          "region": [
+            65,
+            61,
+            662,
+            958
+          ],
+          "usage": "left_moon_emerging_from_water"
+        },
+        {
+          "path": "res://resources/art/cg/act_04/cg_04_truth_02.tres",
+          "region": [
+            760,
+            61,
+            1099,
+            358
+          ],
+          "usage": "upper_right_bedside_and_painted_moon"
+        },
+        {
+          "path": "res://resources/art/cg/act_04/cg_04_truth_03.tres",
+          "region": [
+            760,
+            479,
+            1102,
+            540
+          ],
+          "usage": "lower_right_flood_and_back_view"
+        }
+      ],
+      "note": "第四幕真实导向三格CG，完整原sheet与白色留白保留；仅创建左竖、右上、右下三格Atlas，含原棕色边框。裁区依据原图非白边框精确外接矩形，播放顺序由剧本cue独立管理。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。"
+    },
+    {
+      "id": "ending_false",
+      "source_filename": "2A7DBBCF33A27903D66429B24FC7F25B.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/真假结局cg.zip",
+      "source_entry": "真假结局cg/2A7DBBCF33A27903D66429B24FC7F25B.png",
+      "path": "res://assets/art/cg/act_05/ending_false.png",
+      "category": "cg",
+      "scene": "end1",
+      "canvas_size": [
+        2823,
+        1540
+      ],
+      "pixel_mode": "RGB",
+      "source_has_alpha": false,
+      "alpha_bounds": [
+        0,
+        0,
+        2823,
+        1540
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "4db224b5e47b9d47b50a1ef05d03eb794949645464eecc0c4ba5fec8a3292895",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_05/ending_false.tres",
+          "region": [
+            0,
+            0,
+            2823,
+            1540
+          ],
+          "usage": "full_false_ending"
+        }
+      ],
+      "note": "假结局CG：两人在暖色房内相依；按假结局共同生活正文映射。原图为RGB，保留原字节与完整画布，不新增alpha通道。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。",
+      "alpha_bounds_basis": "implicit_opaque_rgb"
+    },
+    {
+      "id": "ending_true",
+      "source_filename": "B448FB1A4CD078793234CD0FE1D344D1.png",
+      "source_archive": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/真假结局cg.zip",
+      "source_entry": "真假结局cg/B448FB1A4CD078793234CD0FE1D344D1.png",
+      "path": "res://assets/art/cg/act_05/ending_true.png",
+      "category": "cg",
+      "scene": "end2",
+      "canvas_size": [
+        2823,
+        1540
+      ],
+      "pixel_mode": "RGB",
+      "source_has_alpha": false,
+      "alpha_bounds": [
+        0,
+        0,
+        2823,
+        1540
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "de9cbeb26b026955e020bfc04f4e9a5d86537fa30a223a95aafbad07080778ab",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_05/ending_true.tres",
+          "region": [
+            0,
+            0,
+            2823,
+            1540
+          ],
+          "usage": "full_true_ending"
+        }
+      ],
+      "note": "真结局CG：独自立于蓝色夜空下望月；按离开装置的真结局映射。原图为RGB，保留原字节与完整画布，不新增alpha通道。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。",
+      "alpha_bounds_basis": "implicit_opaque_rgb"
+    },
+    {
+      "id": "studio_draft_paper",
+      "source_filename": "e0b1cd0291cafaf545e840098953e871.png",
+      "source_path": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/temp/RWTemp/2026-10/d4e9f6426aec118329b1c2601df3cc74/e0b1cd0291cafaf545e840098953e871.png",
+      "path": "res://assets/art/environments/studio/props/studio_draft_paper.png",
+      "category": "props",
+      "scene": "studio",
+      "canvas_size": [
+        2740,
+        2628
+      ],
+      "pixel_mode": "RGBA",
+      "source_has_alpha": true,
+      "alpha_bounds": [
+        189,
+        355,
+        2361,
+        2398
+      ],
+      "source_alpha_range": [
+        0,
+        255
+      ],
+      "sha256": "a527c459022a4aed1e3bf230170a5a23d549a8c727c57ecbd073ecfec11af1fd",
+      "regions": [
+        {
+          "path": "res://resources/art/studio/studio_draft_paper.tres",
+          "region": [
+            189,
+            355,
+            2172,
+            2043
+          ],
+          "usage": "visible_paper_stack"
+        }
+      ],
+      "note": "用户提供的画室草稿纸原始透明PNG；Atlas仅去透明留白。探索沿用SketchPaper节点、位置(141,520)、旋转-0.12与34×42原区域，按源图比例显示34×31.980663；CollectSketchPaper复用同Atlas作收集预览，正文、F锚点、潮汐稳定ID及奖励去重流程保留。 原文件字节、像素与画布保留，导入无损并关闭mipmaps；CG与收集预览显示节点使用线性过滤，探索物件沿用场景过滤配置。"
     }
   ]
 }

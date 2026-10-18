@@ -60,6 +60,22 @@ func play_path(path: String, from_position: float = 0.0, fade_seconds: float = 0
 func position_seconds() -> float:
 	return _voices[_active].get_playback_position() if _active >= 0 else 0.0
 
+func export_save_data() -> Dictionary:
+	return {
+		"path": active_path,
+		"position": position_seconds(),
+		"playing": _active >= 0 and _voices[_active].playing,
+	}
+
+func import_save_data(data: Dictionary) -> void:
+	stop()
+	var path := String(data.get("path", ""))
+	if path.is_empty():
+		return
+	play_path(path, maxf(0.0, float(data.get("position", 0.0))), 0.0, true)
+	if not bool(data.get("playing", true)) and _active >= 0:
+		_voices[_active].stop()
+
 func fade_out(seconds: float = 0.75) -> void:
 	active_path = ""
 	_active = -1

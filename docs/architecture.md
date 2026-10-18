@@ -2,7 +2,7 @@
 
 ## 文档职责
 
-本文说明 Lunar 在 `D:/godot/demo/demo2` 内的运行结构、模块职责、接口及扩展方式。静态核对日期：2026-10-19，依据当前 `.gd`、`.tscn`、`.tres` 与项目配置整理。四处谜题共 32 条有序路由，阶段四以句型 3“【A】从【B】中涌现”接入五碎片、18 条微剧情与两条正式分支；电影票提供镜面，连续三次反向填写触发真实导向。完整 `cg_04` 后同黑屏衔接第五幕，真回忆后进入储物间与装置选择，最终解锁假结局 `end1` 或真结局 `end2`。原三处组合、后续对白与 10.15 素材保留，音乐按用户新配乐说明重新分配。主菜单与暂停共用独立偏好的设置页，剧情及收集/物件查看共用纸张对白框；返回门、仓库、装置与电影票已接入图片，详见下文。CG 位图继续待补。此前设置、对白框及环境资产接入先按静态核对；反馈修订完成 94 项图形回归，范围见项目状态，该结果早于本轮音频接入。新音频完成 10 脚本语法解析及资产静态审计，听感仍待验收；2026-10-17 新游戏黑屏专项修复的历史运行范围见项目状态文档，其余模块继续按各节待验收说明处理。
+本文说明 Lunar 在 `D:/godot/demo/demo2` 内的运行结构、模块职责、接口及扩展方式。静态核对日期：2026-10-19，依据当前 `.gd`、`.tscn`、`.tres` 与项目配置整理。四处谜题共 32 条有序路由，阶段四以句型 3“【A】从【B】中涌现”接入五碎片、18 条微剧情与两条正式分支；电影票提供镜面，连续三次反向填写触发真实导向。完整 `cg_04` 后同黑屏衔接第五幕，真回忆后进入储物间与装置选择，最终解锁假结局 `end1` 或真结局 `end2`。原三处组合、后续对白与 10.15 素材保留，音乐按用户新配乐说明重新分配。主菜单与暂停共用独立偏好的设置页，剧情及收集/物件查看共用纸张对白框；返回门、仓库、装置与电影票已接入图片，详见下文。CG3、CG4 与真假结局已接图，CG2 前段及意识上传真回忆画面待补；五槽位磁盘存档已接入。此前设置、对白框及环境资产接入先按静态核对；反馈修订完成 94 项图形回归，范围见项目状态，该结果早于本轮音频接入。新音频完成 10 脚本语法解析及资产静态审计，听感仍待验收；本轮 CG 与存档相关脚本语法解析、资源导入通过，未试玩或执行自动化验证；2026-10-17 新游戏黑屏专项修复的历史运行范围见项目状态文档，其余模块继续按各节待验收说明处理。
 
 - 开发操作、项目边界及验证要求见 [AGENTS.md](../AGENTS.md)。
 - 当前接入内容、占位与后续事项见 [项目状态](project_status.md)。
@@ -22,6 +22,9 @@
 | `scenes/ui/main_menu.tscn`、`scripts/ui/main_menu.gd` | F5 主入口，会话创建、保留、暂停与菜单切换 |
 | `scenes/ui/settings_menu.tscn`、`scripts/ui/settings_menu.gd`、`settings_slider.gd` | 主菜单及暂停共用的设置页、纹理滑杆与来源返回 |
 | `scripts/ui/game_settings.gd`、`default_bus_layout.tres` | 独立设置偏好、即时应用、BGM/SFX 音量总线 |
+| `scripts/save_manager.gd`、`resources/saves/fragment_4.json` | 五槽位版本化磁盘存档、原子写入及首次安装预设 |
+| `scripts/ui/save_slots_panel.gd` | 主菜单载入与暂停保存／读取共用的槽位页面 |
+| `scripts/ui/story_cg_view.gd` | 原画布分镜累加、整图替换、清屏及恢复至当前页 |
 | `scripts/ui/dialogue_paper.gd`、`resources/art/ui/dialogue_paper.tres` | 剧情、收集和物件查看共用的纸张皮肤及参考布局 |
 | `main.tscn`、`scripts/main.gd` | 单次游戏会话，协调玩家、地点、状态与 UI |
 | `scenes/` | 五个地点及玩家、白模、移动边界复用场景 |
@@ -56,18 +59,32 @@ Godot AI 的 `_mcp_game_helper` 是工具辅助 autoload。玩法状态由 `main
 
 `opening_cinematic.gd` 使用独立 `StoryDialogue`、黑底、淡入与特定页震动；页数据包含前段旁白、Luna 台词、主角对白及回忆旁白。每次新游戏完整播放。开场期间由菜单转发输入，Esc 被消化，当前没有跳过开场接口。
 
-`continue_game()` 恢复 `_game` 的显示、UI、相机和 `PROCESS_MODE_INHERIT`，并调用 BGM 的 `start_or_resume()`。`return_to_menu()` 调用 `_suspend_game()`，隐藏游戏、UI 和相机，设置 `PROCESS_MODE_DISABLED` 并清零速度。`pause_game()` 同样禁用游戏处理，但保留画面供暂停界面的两遍高斯模糊取样。暂停与 `_suspend_game()` 都显式调用 BGM 的 `suspend()` 冻结全部游戏音频和淡化时间；节点处理模式负责会话逻辑，未使用 `SceneTree.paused`。
+`continue_game()` 恢复 `_game` 的显示、UI、相机和 `PROCESS_MODE_INHERIT`，并调用 BGM 的 `start_or_resume()`。`return_to_menu()` 调用 `_suspend_game()`，隐藏游戏、UI 和相机，设置 `PROCESS_MODE_DISABLED` 并清零速度。`pause_game()` 同样禁用游戏处理，但保留画面供暂停界面的两遍高斯模糊取样。暂停与 `_suspend_game()` 都显式调用 BGM 的 `suspend()` 冻结全部游戏音频和淡化时间；节点处理模式负责会话逻辑，未使用 `SceneTree.paused`。槽位页为 CanvasLayer 55，在游戏逻辑禁用时继续处理输入。
 
 游戏音频在卧室淡入结束、恢复自由操作时首次启动，探索曲与地点白噪音从 0 开始；新游戏销毁旧会话并重建音频，继续游戏恢复原位置。菜单外壳独立 `MenuAudio` 播放“主界面+解密”，无白噪音；新游戏和继续时淡出菜单曲，开场未新增配乐或环境声。
 
-“继续游戏”要求当前 `_game` 有效。退出进程后会话消失；音量和亮度偏好独立保留。存档槽与制作人员页面目前为预留空白页。页面接口为：
+“继续游戏”优先恢复有效 `_game`；没有内存会话时读取保存时间最新的有效磁盘槽位。主菜单载入与暂停保存／读取已接入，制作人员页面仍预留。退出进程后可从磁盘恢复已保存进度；音量和亮度偏好独立保留。页面接口为：
 
 | 接口 | 作用 |
 | --- | --- |
-| `page_requested(page_id)` | 打开 `load_game`、`settings`、`credits` 时发出 |
-| `request_load_slot(slot_id)` | 供未来槽位界面调用 |
-| `load_slot_requested(slot_id)` | 转发载入请求，当前没有读写存档实现 |
+| `page_requested(page_id)` | 现有设置与制作人员页面通知 |
+| `request_load_slot(slot_id)` | 将数字槽号转交当前读档流程 |
+| `load_slot_requested(slot_id)` | 保留对外载入请求信号，同时支持实际槽位读取 |
 | `return_to_menu()`、`pause_game()`、`continue_game()` | 控制现有会话的显示与处理模式 |
+
+### 五槽位存档与恢复
+
+`main_menu.gd` 持有 `SaveManager` 与 `SaveSlotsPanel`。主菜单“载入游戏”、暂停“保存游戏／读取存档”打开五槽位页面；F5/F9 分别打开保存／读取，对白与谜题中也可使用。每槽提供可编辑名称、地点、碎片数、游戏时长与保存时间；覆盖、删除需在页面确认。打开槽位页冻结游戏逻辑和全部游戏音频，关闭后回来源页面。
+
+SaveManager 继承 RefCounted，槽号为 1–5，文件为 `user://saves/slot_N.json`，当前格式 `lunar_save`、版本 1。`list_slots()` 固定返回五项元数据（含高精度 `saved_at_unix` 供最近存档排序）；`save_slot(slot,snapshot,name)`、`load_slot(slot)`、`delete_slot(slot)`、`rename_slot(slot,name)` 返回 `{ok,error,...}`，读取成功附 `snapshot`。空槽与损坏／不兼容档分别显示，坏档不自动删除；设置继续独立使用 `settings.cfg`。新档保存 Unix 浮点时间，旧档无此字段时按显示时间与当前系统时区换算秒级兼容时间。
+
+`main.export_save_data()` 组合 `{state,world,ui,audio,elapsed_seconds}`。world 保存地点资源路径、角色脚点和朝向；GameState 保存碎片、钥匙、已开始事件、完整阅读、最近分支及终局；GameUI 保存当前模态、共享引导与提示；StoryDialogue 保存页组、页码、已显示字数、立绘与选择；谜题保存定义／场景路径、库存快照、投入和槽位、句型、抵抗次数、当前阶段及正式 CG 页。UI 字段均为 JSON 原始值，StringName 转字符串，Vector2 转二元素数组。
+
+瞬时动画不逐帧存储：浮词／失败反馈收敛到填词，扫光、微剧情显现与正式 CG 等恢复到对应稳定阶段；已完成的返回流程恢复后续正文或探索。切换地点时暂不保存。CG 恢复先累计执行至当前页，再结束淡入，保留清屏与替换元数据，不重发完整阅读、奖励或结局信号。
+
+读档先创建隐藏、处理禁用的新候选会话，将 `pending_snapshot` 在进入场景树前赋值。main 先恢复 GameState，再创建目标地点、放置角色、恢复 UI，最后恢复音频以覆盖重建 UI 的临时 cue；音频保留曲目与播放位置、引子完成／离开双条件及排队状态、CG3 截断与 uplifter 检查点，短瞬态音效不恢复。成功扫光收敛到正式 CG 时，`resume_audio_context` 同步对应正式曲，避免沿用操作阶段的水池快照。候选 `snapshot_restored` 成功后替换旧实例，淡入结束才恢复处理与播放；失败保留旧会话。
+
+存档写入先递归校验 JSON 类型、文件大小、深度与有限数值，限制地点、位置、时长及状态结构；在同目录临时文件完整写入、flush 和关闭后重命名替换目标。`resources/saves/fragment_4.json` 是随仓库分发的“碎片4”预设：全五碎片、CG01–03 完整，位于一楼收纳盒前并打开第四谜题 MOON 待操作，CG04／分支／结局均未完成。`install_preset()` 首次寻找空槽安装，五槽全满不覆盖；`fragment_4_installed.json` 标记与槽内来源信息防止删除后重复安装。
 
 ### 共享设置与偏好
 
@@ -196,7 +213,7 @@ context = {"game": self, "player": player, "state": state, "ui": ui}
 
 ## 会话状态
 
-`game_state.gd` 持有 `fragments`、`keys`、`seen_story_events`、`seen_memory_stories`、`memory_story_branches` 与 `unlocked_endings` 六个字典，另以 `current_ending` 记录当前终局，跨地点保留，新游戏重建。`seen_story_events` 记录前置对白等已启动事件及 `storage_room_opened`；`seen_memory_stories` 使用稳定剧情 ID 记录完整阅读；`memory_story_branches` 记录最近完整读完的剧情分支及后续目标。结局记录仅在当前会话内保留，没有磁盘存档。
+`game_state.gd` 持有 `fragments`、`keys`、`seen_story_events`、`seen_memory_stories`、`memory_story_branches` 与 `unlocked_endings` 六个字典，另以 `current_ending` 记录当前终局，跨地点保留，新游戏重建。`seen_story_events` 记录前置对白等已启动事件及 `storage_room_opened`；`seen_memory_stories` 使用稳定剧情 ID 记录完整阅读；`memory_story_branches` 记录最近完整读完的剧情分支及后续目标。这些字段通过 `export_save_data()/import_save_data()` 写入和恢复磁盘存档；导入先校验完整结构，再替换字典，不重发奖励信号。
 
 | 接口 | 语义 |
 | --- | --- |
@@ -210,7 +227,7 @@ context = {"game": self, "player": player, "state": state, "ui": ui}
 | `get_memory_story_branch(story_id)`、`get_next_memory_story(story_id)` | 查询最近完整读完的分支及后续目标；触发分支与提前退出不写入 |
 | `unlock_ending(ending_id)` | 仅接受 `end1/end2`，写入 `unlocked_endings` 与 `current_ending`；由完整结局正文后的 GameUI 信号触发 |
 
-照片、草稿纸、客厅小帐篷与符合门槛的电影票在打开正文时即写入碎片，提前关闭保留奖励。小帐篷沿用 `collect_memory_item.gd`，D/`memory_fragment_04` 为月影，无剧情门槛；电影票使用 `story_gated_memory_item.gd`，完整 `cg_03` 后从餐桌南侧椅子下收集 E/`memory_fragment_05` 镜面。阶段四五个选项与剧情编号分别为 A=港湾 1、E=镜面 2、B=涌泉 3、C=潮汐 4、D=月影 5；稳定 ID 和编号独立。阶段 1—3 保留原路由，E 展示名和词同步镜面，未增加 E 组合。重复奖励去重，钥匙不消耗。当前没有序列化存档、独立背包 UI 或按谜题 ID 记录的完成集合。
+照片、草稿纸、客厅小帐篷与符合门槛的电影票在打开正文时即写入碎片，提前关闭保留奖励。小帐篷沿用 `collect_memory_item.gd`，D/`memory_fragment_04` 为月影，无剧情门槛；电影票使用 `story_gated_memory_item.gd`，完整 `cg_03` 后从餐桌南侧椅子下收集 E/`memory_fragment_05` 镜面。阶段四五个选项与剧情编号分别为 A=港湾 1、E=镜面 2、B=涌泉 3、C=潮汐 4、D=月影 5；稳定 ID 和编号独立。阶段 1—3 保留原路由，E 展示名和词同步镜面，未增加 E 组合。重复奖励去重，钥匙不消耗。当前支持五槽位序列化存档，独立背包 UI 和按谜题 ID 记录的完成集合继续保留现状。
 
 水井在同时持有 `bedroom_photo_01`、`corridor_photo_02` 且未标记 `well_memory_intro` 时请求前置对白。解谜成功打开且 `introduction_started` 为真后，入口立即写入标记；提前 Esc 退出对白也保留该标记。谜题的 `restoration_succeeded(puzzle_id)` 在 CG 演出开始时转发，未写入谜题完成集合。正式最后一页完整翻完时发出 `memory_story_completed(active_outcome.id)`，经 GameUI/main 写入 `seen_memory_stories`；阶段 1—4 使用 `cg_01/02/03/04`。情节块 4 先发 `memory_story_branch_completed(story_id, branch_id, next_story_id)` 记录分支，再发完整阅读信号并交 GameUI 同黑屏接第五幕。第五幕完整正文分别记录 `cg_05_true/cg_05_false/end2`。INTRO、微剧情、前两次 Luna 介入、未读完正文、占位 CG 与提前 Esc 不写新完成，提前退出保留旧记录。
 
@@ -275,6 +292,12 @@ StoryDialogue 有说话人时正文安全区为 `(48, 78, 1688, 154)`，无说�
 2026-10-17 的历史黑屏专项验证已复现当时的镜像异常，并检查修复后的普通/镜像框体、新游戏按钮触发、开场首句可见、鼠标与 Enter 翻页及进入卧室，报告 `failures=[]`。该记录对应当时使用气泡底图的版本；后续矩形底框及当前纸张对白框、世界提示视口边缘与其余路线的验证独立记录。
 
 `collection_preview.gd` 等比显示道具图片；`collect_key.gd` 的默认 `artwork` 与 `placeholder_type = key` 的回退均引用 `resources/art/ui/key_icon.tres`。该替换只影响图标，去重发放、钥匙查询与门户持有逻辑保留。
+
+### 共享 CG 画布
+
+`story_cg_view.gd` 供 StoryDialogue 与记忆谜题共用。页字段 `cg_image` 为 Texture2D／AtlasTexture 资源路径，默认累积分镜；`cg_replace=true` 先清旧再显示新图，`cg_clear=true` 清回黑底。Atlas 以原图大小作为画布，按 region 的原坐标和尺寸摆放，整个画布等比居中在纸张上方；不同画布自动清旧，保留原图比例。`clear()` 清理 Tween，`settle()` 直接完成当前淡入，恢复时按页重建至当前演出状态。
+
+CG1 保持三格累积。CG3 是 3508×2480 两张整图；CG4 Luna 为 1920×1080 单幅，真实分支按 index 2／9／10 累加左、右上、右下三格；真假结局为 2823×1540 单幅。章节切换、退出与终局清除旧图，意识上传真回忆首屏显式 `cg_clear`。逐页时点、原名及 Atlas 区域见 [美术资产规范](art_assets.md#cg3cg4与真假结局图片)。
 
 ## 会话音频
 
@@ -402,7 +425,7 @@ context["ui"].open_puzzle(definition, context["state"].owned_fragment_ids())
 
 独立 `story_script` 绑定 `tent_storage_memory_story.gd`，阶段四共 20 条有序路由，均匹配句型 3“【A】从【B】中涌现”。D→C 使用 `cg_branch/luna` 直接播放 Luna 7 页；C→D 使用 `cg_resistance/truth`，连续第三次播放真实 14 页。两条正式路由故事 ID 均为 `cg_04`，其余 18 条使用用户新正文与 `3_<左编号>_<右编号>` ID，覆盖剩余五碎片异词组合。阶段 1—3 原路由保留。
 
-两分支正文逐字保留用户原文，每页空 `speaker` 且 `show_protagonist=false`。共用演出按路由 `branch_id` 深拷贝对应页组并进入 `STORY`，沿用左键/Enter/空格/F 补齐与翻页、黑底和通用对白框。CG 位图继续待提供，立绘保持关闭，配乐按 Luna/真实导向分别使用“这是梦吗”/“月球坠落”；制作概要与真假结局说明不作为正文显示。
+两分支正文逐字保留用户原文，每页空 `speaker` 且 `show_protagonist=false`。共用演出按路由 `branch_id` 深拷贝对应页组并进入 `STORY`，沿用左键/Enter/空格/F 补齐与翻页、黑底和通用对白框。CG 图片使用共用 StoryCGView 按页显示，立绘保持关闭，配乐按 Luna/真实导向分别使用“这是梦吗”/“月球坠落”；制作概要与真假结局说明不作为正文显示。
 
 `INTRO_PAGES` 为三页解谜前置：Luna“月影从潮汐中涌现。”、旁白“事实果真如此吗？”、Luna 再次“月影从潮汐中涌现。”；每页关闭立绘，沿用共用对白和输入。未满足完整 `cg_03` 或没有匹配碎片时继续显示查看提示，不标记前置已开始。
 
@@ -412,7 +435,7 @@ context["ui"].open_puzzle(definition, context["state"].owned_fragment_ids())
 
 ### 第五幕与结局
 
-`scripts/ending_story.gd` 集中维护 `FALSE_ENDING_PAGES` 5 页、`TRUTH_RECOLLECTION_PAGES` 8 页、`EXPLORATION_PAGES` 3 页、`DEVICE_PAGES` 5 页正文加 1 页选择，以及 `TRUE_ENDING_PAGES` 5 页。正文来自用户本轮总剧情与 CG 文本，黑底页显式关闭立绘；CG 位图继续待提供。
+`scripts/ending_story.gd` 集中维护 `FALSE_ENDING_PAGES` 5 页、`TRUTH_RECOLLECTION_PAGES` 8 页、`EXPLORATION_PAGES` 3 页、`DEVICE_PAGES` 5 页正文加 1 页选择，以及 `TRUE_ENDING_PAGES` 5 页。正文来自用户本轮总剧情与 CG 文本，正式页显式关闭立绘；假正文第 0 页显示相依图，真正文第 4 页显示独立望月图，真回忆 8 页保持黑底。
 
 GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_false` 完整读完后记录阅读并进入假结局 `end1` 终局；`cg_05_true` 完整读完后记录阅读，恢复探索背景，播放三页提示并指出钥匙在玄关花盆里。玩家自行开储物间门、进入房间并使用装置。装置的 `leave` 选择播放真正文，完整后进入 `end2`；`stay` 选择播放假正文，完整后进入 `end1`。选择本身不提前解锁结局。
 
@@ -422,7 +445,7 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 
 四处共 32 条路由的剧情 ID、句型与对应词见 [项目状态的组合剧情映射](project_status.md#组合剧情映射)。`micro` 在 `ECHO` 调用 `memory_echo.gd`，原背景上浮现完整月光文字，配细光线与稀疏光点，不显示常规对白框或立绘。下方提示“左键 / Enter / 空格 / F 继续”；显现期间确认先补齐，完成后确认淡出并清空尝试、返回 `MOON`。确认输入被消化，Esc 退出整个谜题。库存和共享引导标记保留，微剧情不发出完成或后续对白事件。
 
-`cg_existing` 读取当前定义的 `NARRATIVE_PAGES` 并进入 `STORY`：水井使用原分段 CG；洗笔桶情节块 2 共 39 页，前 28 页保留黑底，第 29–39 页（零起 index 28–38）通过 `cg_image` 接入 `resources/art/cg/act_02/cg_02_window.tres`，从小泠“好了，别再说了。”切入；鱼缸继续黑底正文。三处共用纸张对白框，正式回忆关闭立绘。阶段四通过 `cg_branch/cg_resistance` 进入正式分支，`cg_placeholder` 仅保留兼容实现。正式演出开始发出 `restoration_succeeded`；前三处完整读完后请求各自 `FOLLOWUP_PAGES` 并返回探索，阶段四完整后同黑屏接第五幕。提前 Esc 不接后续。微剧情仍在 `ECHO` 确认后回选碎片，不写完整阅读记录。
+`cg_existing` 读取当前定义的 `NARRATIVE_PAGES` 并进入 `STORY`：水井使用原分段 CG；洗笔桶情节块 2 共 39 页，前 28 页保留黑底，第 29–39 页（零起 index 28–38）通过 `cg_image` 接入 `resources/art/cg/act_02/cg_02_window.tres`，从小泠“好了，别再说了。”切入；鱼缸从零起 index 7 显示科研图，17 替换晚餐图，19 清屏、21 恢复晚餐图。三处共用纸张对白框，正式回忆关闭立绘。阶段四通过 `cg_branch/cg_resistance` 进入正式分支，`cg_placeholder` 仅保留兼容实现。正式演出开始发出 `restoration_succeeded`；前三处完整读完后请求各自 `FOLLOWUP_PAGES` 并返回探索，阶段四完整后同黑屏接第五幕。提前 Esc 不接后续。微剧情仍在 `ECHO` 确认后回选碎片，不写完整阅读记录。
 
 `memory_echo.gd` 针对首次浮现未见正文的反馈先完成可见布局，再通过延迟回调赋文本并强制计算换行；每次关闭递增 `_presentation_id`，旧回调按 ID 失效。该改动用于加固首次布局和取消时序，反馈根因尚未证明；本轮四处微剧情首次显示、快速关闭和重新进入的图形回归均通过。
 
@@ -468,7 +491,7 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 
 画室 `studio.tscn` 按来源 1360×1000 画布统一缩放 0.6，房间映射为 816×600，地板从 y=210 开始，活动边界为 `Rect2(18, 210, 780, 375)`。地板墙面用 AtlasTexture 拆层；白底物件与墙体由原 PNG、SVG 轮廓遮罩和画室材质组成。`whitebox.artwork` 绑定轮廓遮罩，材质负责原图采样，现有 `interaction_glow.gd` 继续从 artwork 获取真实轮廓。
 
-`Easel`、`Stool`、`StorageShelf` 与新增 `PaletteSupportShelf` 的视觉尺寸按源图有效区域维护，各有独立隐藏 `Footprint` 节点负责底部碰撞。原 `PaletteTable` 改为无碰撞调色盘，画架清零旧旋转。四幅墙上画、三幅叠放画框及《创世纪》接入图片；返回门使用共享新门图，窗、草稿纸和报纸继续占位。`Interactables` 的原 ID、正文、钥匙/碎片与谜题路由保留，交互脚点随新布局迁移；返回门 `ToCorridor` 和出生点 `from_corridor` 名称保留，出生位置为 `(408, 520)`。
+`Easel`、`Stool`、`StorageShelf` 与新增 `PaletteSupportShelf` 的视觉尺寸按源图有效区域维护，各有独立隐藏 `Footprint` 节点负责底部碰撞。原 `PaletteTable` 改为无碰撞调色盘，画架清零旧旋转。四幅墙上画、三幅叠放画框及《创世纪》接入图片；返回门使用共享新门图，草稿纸通过 `resources/art/studio/studio_draft_paper.tres` 同时提供探索图和收集大图，窗和报纸继续占位。`Interactables` 的原 ID、正文、钥匙/碎片与谜题路由保留，交互脚点随新布局迁移；返回门 `ToCorridor` 和出生点 `from_corridor` 名称保留，出生位置为 `(408, 520)`。
 
 探索洗笔桶通过 `resources/art/studio/studio_brush_wash_bucket.tres` 显示天然透明 PNG 的 `(620, 511, 235, 245)` 区域，按反馈等比缩为约 `57.55102×60`；中心 `(486, 305)`、脚底 y=335，独立 `BrushWashBucketFootprint` 在 `(486, 314)` 保留 42×42 椭圆碰撞。F 交互脚点 `(521, 350)` 保留，光晕读取纹理 alpha。画室 `StorageShelfFootprint` 在 `(753.3, 449.4)` 覆盖 `87×271.2` 矩形，避免进入柜身。白底画室物件继续使用原遮罩材质，洗笔桶谜题背景、故事路由保留，月相 token 缩为 `144×144`。
 
@@ -500,10 +523,10 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 1. 创建独立定义资源，复用 `memory_puzzle_definition.gd` 与 `memory_option.gd`，配置独立 `puzzle_id`、选项、句型和反馈；按需在 `BY_PUZZLE` 添加有序组合路由，未定义路由的入口沿用旧答案字段。
 2. 将选项 `fragment_id` 绑定实际来源，同步展示名与词牌；分别配置该入口的图像、水面、碎片矩形与容错、首次拖拽引导、浮词时机及剧情行为，维护单轮状态与共享配置分离。
 3. 入口以持有 ID 列表快照调用 `GameUI.open_puzzle()`。需要前置对白时明确入口条件和已播放标记，复用水井、洗笔桶或鱼缸的时序。
-4. 需要完整剧情后解锁时，用稳定的组合剧情 ID 与 `has_seen_memory_story()` 查询；正式 `STORY` 最后一页读完后经 `memory_story_completed` 写入会话状态。`restoration_succeeded` 保留演出开始事件语义。分支处理先经 `memory_story_branch_completed` 记录分支与后续目标，再发完整阅读事件，提前退出不更新；阶段四 `cg_04` 沿用该时序。持久存档需另行定义保存与恢复范围。
+4. 需要完整剧情后解锁时，用稳定的组合剧情 ID 与 `has_seen_memory_story()` 查询；正式 `STORY` 最后一页读完后经 `memory_story_completed` 写入会话状态。`restoration_succeeded` 保留演出开始事件语义。分支处理先经 `memory_story_branch_completed` 记录分支与后续目标，再发完整阅读事件，提前退出不更新；阶段四 `cg_04` 沿用该时序。这些进度随 GameState 导出，连同地点、UI／谜题与音频检查点写入现有五槽位存档；新增字段需同步导出、校验与恢复契约。
 
 ### 新增对白与存档
 
 普通对白通过 `show_dialogue(pages)` 接入。创世纪的默认 `story_pages` 提供现有示例，演出震动使用页字段 `shake`。解谜前置、成功和后续页放入独立剧情脚本的对应常量；谨慎约定“启动”“读完”“还原成功”三种事件的标记时机。
 
-存档接口目前预留。实现时需要显式选择序列化范围，例如 GameState 字典、当前地点身份与玩家位置，并通过现有加载和状态接口恢复；继续游戏现有行为只恢复内存实例。新增能力应同步更新本架构、项目状态及项目规范中的相关接口描述。
+扩展存档时沿用各模块 `export_save_data()/import_save_data()` 的 JSON 原始值契约，为新增持久字段提供缺省值与类型校验；动画收敛到稳定阶段，并同步相应音频检查点。新增不兼容结构时更新 SaveManager 版本及迁移约定。更新本架构、项目状态与项目规范，保持内存继续、磁盘载入和新游戏语义明确。

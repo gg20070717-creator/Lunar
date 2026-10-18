@@ -27,7 +27,7 @@ const INTRO_PAGES: Array[Dictionary] = [
 	},
 ]
 
-# 情节块 3：正式 CG 图片提供前，继续使用现有黑底完整对白。
+# 情节块 3：科研与晚餐整图按页替换，幻觉两页清屏。
 const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "你",
@@ -67,7 +67,9 @@ const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "",
 		"text": "2089年，你硕士毕业之后，你听从父母的安排，进入弦音科技公司的总部研究所，负责引力波引擎的研发工作。",
-		"show_protagonist": false
+		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_03/cg_03_work.tres",
+		"cg_replace": true,
 	},
 	{
 		"speaker": "",
@@ -117,7 +119,9 @@ const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "你",
 		"text": "老板很满意，提前放我们走，不用留在所做收尾整理了。（看向厨房）哇塞，你还点了披萨？！",
-		"show_protagonist": false
+		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_03/cg_03_dinner.tres",
+		"cg_replace": true,
 	},
 	{
 		"speaker": "",
@@ -127,7 +131,8 @@ const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "",
 		"text": "忽然，眼前的景象变了。天花板滴下水，一地，两滴，餐桌上是泛着酸臭的罐头和发霉的压缩饼干。",
-		"show_protagonist": false
+		"show_protagonist": false,
+		"cg_clear": true,
 	},
 	{
 		"speaker": "",
@@ -137,7 +142,9 @@ const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "",
 		"text": "小泠在你手上轻拍一下，把你拉回现实。",
-		"show_protagonist": false
+		"show_protagonist": false,
+		"cg_image": "res://resources/art/cg/act_03/cg_03_dinner.tres",
+		"cg_replace": true,
 	},
 	{
 		"speaker": "小泠",

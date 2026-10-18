@@ -10,8 +10,10 @@ const SettingsMenuScene = preload("res://scenes/ui/settings_menu.tscn")
 const SettingsMenu = preload("res://scripts/ui/settings_menu.gd")
 const GameSettings = preload("res://scripts/ui/game_settings.gd")
 const AudioController = preload("res://scripts/audio/bgm_controller.gd")
+const SaveManager = preload("res://scripts/save_manager.gd")
+const SaveSlotsPanel = preload("res://scripts/ui/save_slots_panel.gd")
 const REFERENCE_SIZE := Vector2(1920, 1080)
-const EMPTY_PAGES: Array[StringName] = [&"load_game", &"credits"]
+const EMPTY_PAGES: Array[StringName] = [&"credits"]
 
 @export var transition_duration := 0.5
 @export var opening_black_delay := 0.65
@@ -33,6 +35,10 @@ var settings_menu: SettingsMenu
 var _settings_return_page: StringName = &"main"
 var _brightness_mask: ColorRect
 var _menu_music: AudioController
+var saves := SaveManager.new()
+var save_panel: SaveSlotsPanel
+var _slots_return_page: StringName = &"main"
+var _save_snapshot: Dictionary = {}
 
 
 func _ready() -> void:
@@ -79,6 +85,16 @@ func _ready() -> void:
 	pause_menu.connect("main_menu_requested", return_to_menu)
 	pause_menu.connect("quit_requested", _on_quit_pressed)
 	pause_menu.connect("settings_requested", _on_settings_pressed)
+	pause_menu.connect("save_requested", _open_save_page)
+	pause_menu.connect("load_requested", _open_load_page)
+	save_panel = SaveSlotsPanel.new()
+	save_panel.name = "SaveSlots"
+	add_child(save_panel)
+	save_panel.close_requested.connect(_close_slots)
+	save_panel.save_requested.connect(_save_slot)
+	save_panel.load_requested.connect(_load_slot)
+	save_panel.delete_requested.connect(_delete_slot)
+	saves.install_preset()
 	get_viewport().size_changed.connect(_fit_artwork)
 	_fit_artwork()
 	return_to_menu()
@@ -165,7 +181,7 @@ func _load_game_scene() -> PackedScene:
 func _restore_menu_after_load_failure() -> void:
 	empty_page.hide()
 	menu_root.show()
-	continue_button.disabled = not is_instance_valid(_game)
+	_update_continue_button()
 	await _fade_to(0.0)
 	current_page = &"main"
 	transitioning = false
@@ -184,6 +200,19 @@ func _fade_to(alpha: float) -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if current_page == &"slots":
+		# Slot UI owns its keyboard/mouse input while gameplay is frozen.
+		return
+	if not transitioning and event is InputEventKey and event.pressed and not event.echo:
+		var key: int = event.keycode if event.keycode != 0 else event.physical_keycode
+		if key == KEY_F5 and current_page in [&"game", &"pause"]:
+			_open_save_page()
+			get_viewport().set_input_as_handled()
+			return
+		if key == KEY_F9 and current_page in [&"game", &"pause", &"main"]:
+			_open_load_page()
+			get_viewport().set_input_as_handled()
+			return
 	if current_page == &"settings" and event.is_action_pressed("ui_cancel") and not event.is_echo():
 		_close_settings()
 		get_viewport().set_input_as_handled()
@@ -198,6 +227,9 @@ func continue_game() -> void:
 	if transitioning:
 		return
 	if not is_instance_valid(_game):
+		var slot := _latest_slot()
+		if slot > 0:
+			_load_slot(slot)
 		return
 	_menu_music.fade_out()
 	_hide_settings()
@@ -226,7 +258,7 @@ func return_to_menu() -> void:
 	_menu_music.set_context(&"exploration")
 	_menu_music.start_or_resume()
 	# Keep the supplied appearance even when no session exists to continue.
-	continue_button.disabled = not is_instance_valid(_game)
+	_update_continue_button()
 
 
 func open_page(page_id: StringName) -> void:
@@ -234,6 +266,9 @@ func open_page(page_id: StringName) -> void:
 		return
 	if page_id == &"settings":
 		_open_settings()
+		return
+	if page_id == &"load_game":
+		_open_load_page()
 		return
 	if page_id not in EMPTY_PAGES:
 		return
@@ -286,8 +321,9 @@ func _set_menu_buttons_visible(value: bool) -> void:
 
 
 func request_load_slot(slot_id: StringName) -> void:
-	# Future save-slot UI connects here; this release creates no save data.
 	load_slot_requested.emit(slot_id)
+	if String(slot_id).is_valid_int():
+		_load_slot(int(String(slot_id)))
 
 
 func _suspend_game() -> void:
@@ -318,6 +354,8 @@ func pause_game() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if current_page == &"slots":
+		return
 	if not event.is_action_pressed("ui_cancel") or event.is_echo():
 		return
 	if current_page == &"main":
@@ -350,3 +388,146 @@ func _on_quit_pressed() -> void:
 
 func play_ui_sound(effect_id: StringName) -> void:
 	_menu_music.play_sfx(effect_id)
+
+func _update_continue_button() -> void:
+	continue_button.disabled = not is_instance_valid(_game) and _latest_slot() == 0
+
+func _latest_slot() -> int:
+	var latest := 0
+	var latest_time := -1.0
+	for record: Dictionary in saves.list_slots():
+		if bool(record.get("valid", false)):
+			var saved_at := float(record.get("saved_at_unix", 0.0))
+			if latest == 0 or saved_at > latest_time:
+				latest = int(record.slot)
+				latest_time = saved_at
+	return latest
+
+func _open_save_page() -> void:
+	_open_slots(&"save")
+
+func _open_load_page() -> void:
+	_open_slots(&"load")
+
+func _open_slots(mode: StringName) -> void:
+	if transitioning or current_page not in [&"main", &"pause", &"game"]:
+		return
+	if mode == &"save" and not is_instance_valid(_game):
+		return
+	if is_instance_valid(_game) and bool(_game.get("transitioning")):
+		return
+	_slots_return_page = current_page
+	_save_snapshot.clear()
+	if current_page in [&"game", &"pause"]:
+		var viewport := get_viewport()
+		if viewport.gui_is_dragging() and viewport.has_method("gui_cancel_drag"):
+			viewport.call("gui_cancel_drag")
+		_game.get_node("BGM").call("suspend")
+		_game.process_mode = Node.PROCESS_MODE_DISABLED
+		_game.get_node("World/Player").velocity = Vector2.ZERO
+		if mode == &"save":
+			_save_snapshot = _game.call("export_save_data")
+		pause_menu.call("set_settings_open", true)
+	else:
+		_set_menu_buttons_visible(false)
+	current_page = &"slots"
+	save_panel.set_background_enabled(_slots_return_page == &"main")
+	save_panel.open(String(mode), saves.list_slots())
+	if mode == &"save" and _save_snapshot.is_empty():
+		save_panel.set_status("当前演出正在切换，请返回后稍候再保存。", true)
+	get_viewport().set_input_as_handled()
+
+func _close_slots() -> void:
+	if transitioning or current_page != &"slots":
+		return
+	save_panel.close()
+	_save_snapshot.clear()
+	_set_menu_buttons_visible(true)
+	pause_menu.call("set_settings_open", false)
+	current_page = _slots_return_page
+	if current_page == &"game":
+		continue_game()
+	get_viewport().set_input_as_handled()
+
+func _save_slot(slot: int, save_name: String) -> void:
+	if transitioning or current_page != &"slots":
+		return
+	if _save_snapshot.is_empty():
+		save_panel.set_status("当前演出正在切换，请返回后稍候再保存。", true)
+		return
+	var result := saves.save_slot(slot, _save_snapshot, save_name)
+	save_panel.set_slots(saves.list_slots())
+	save_panel.set_status("已保存到存档 %d。" % slot if result.ok else String(result.error), not result.ok)
+	_update_continue_button()
+
+func _delete_slot(slot: int) -> void:
+	if transitioning or current_page != &"slots":
+		return
+	var result := saves.delete_slot(slot)
+	save_panel.set_slots(saves.list_slots())
+	save_panel.set_status("已删除存档 %d。" % slot if result.ok else String(result.error), not result.ok)
+	_update_continue_button()
+
+func _load_slot(slot: int) -> void:
+	if transitioning:
+		return
+	var result := saves.load_slot(slot)
+	if not result.ok:
+		if current_page != &"slots":
+			_open_load_page()
+		save_panel.set_status(String(result.error), true)
+		return
+	# Keep the current session until the replacement has restored successfully.
+	var previous_page := current_page
+	if previous_page != &"slots":
+		_slots_return_page = previous_page
+	transitioning = true
+	current_page = &"transition"
+	save_panel.set_busy(true)
+	await _fade_to(1.0)
+	await _wait_for_black_frame()
+	_suspend_game()
+	var packed := await _load_game_scene()
+	var candidate: Node2D
+	if packed != null:
+		candidate = packed.instantiate() as Node2D
+		candidate.set("pending_snapshot", result.snapshot)
+		candidate.process_mode = Node.PROCESS_MODE_DISABLED
+		candidate.hide()
+		candidate.get_node("UI").hide()
+		game_host.add_child(candidate)
+	if not is_instance_valid(candidate) or not bool(candidate.get("snapshot_restored")):
+		if is_instance_valid(candidate):
+			game_host.remove_child(candidate)
+			candidate.queue_free()
+		if is_instance_valid(_game) and _slots_return_page in [&"game", &"pause"]:
+			_game.show()
+			_game.get_node("UI").show()
+			_game.get_node("World/Camera").enabled = true
+		await _fade_to(0.0)
+		current_page = previous_page
+		transitioning = false
+		save_panel.set_busy(false)
+		if previous_page != &"slots":
+			_open_load_page()
+		save_panel.set_status("存档内容无法恢复，当前游戏进度已保留。", true)
+		return
+	if is_instance_valid(_game):
+		game_host.remove_child(_game)
+		_game.queue_free()
+	_game = candidate
+	_game.get_node("UI").main_menu_requested.connect(return_to_menu)
+	_menu_music.fade_out()
+	save_panel.close()
+	_save_snapshot.clear()
+	_set_menu_buttons_visible(true)
+	pause_menu.call("set_settings_open", false)
+	pause_menu.hide()
+	menu_root.hide()
+	empty_page.hide()
+	_game.show()
+	_game.get_node("UI").show()
+	_game.get_node("World/Camera").enabled = true
+	await _fade_to(0.0)
+	transitioning = false
+	continue_game()

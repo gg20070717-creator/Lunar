@@ -18,6 +18,10 @@ var current_target: InteractionScript
 var transitioning := false
 var context: Dictionary
 var room_transition_mask: ColorRect
+## Supplied by the menu before this scene enters the tree.
+var pending_snapshot: Dictionary = {}
+var snapshot_restored := false
+var elapsed_seconds := 0.0
 
 func _ready() -> void:
 	_setup_input()
@@ -33,6 +37,10 @@ func _ready() -> void:
 	player.walking_changed.connect(_on_walking_changed)
 	get_viewport().size_changed.connect(_fit_camera)
 	_setup_room_transition()
+	if not pending_snapshot.is_empty():
+		snapshot_restored = _restore_snapshot(pending_snapshot)
+		pending_snapshot.clear()
+		return
 	_replace_level(load(initial_scene_path) as PackedScene, initial_scene_path, initial_spawn)
 	ui.show_controls_hint()
 	player.input_blocked = ui.is_controls_hint_open()
@@ -54,7 +62,62 @@ func _setup_input() -> void:
 			InputMap.action_add_event(action, event)
 
 func _process(_delta: float) -> void:
+	elapsed_seconds += _delta
 	_update_camera()
+
+func export_save_data() -> Dictionary:
+	if transitioning or not is_instance_valid(level):
+		return {}
+	var ui_data: Dictionary = ui.export_save_data()
+	if ui_data.is_empty():
+		return {}
+	return {
+		"state": state.export_save_data(),
+		"world": {
+			"scene_path": level.scene_file_path,
+			"position": [player.global_position.x, player.global_position.y],
+			"facing": [player.facing.x, player.facing.y],
+			"location": level.display_name,
+		},
+		"ui": ui_data,
+		"audio": bgm.export_save_data(),
+		"elapsed_seconds": elapsed_seconds,
+	}
+
+func _restore_snapshot(snapshot: Dictionary) -> bool:
+	if not state.import_save_data(snapshot.get("state", {})):
+		return false
+	var world: Dictionary = snapshot.get("world", {})
+	var path := String(world.get("scene_path", ""))
+	if not _replace_level(load(path) as PackedScene, path, &""):
+		return false
+	var point: Array = world.get("position", [])
+	if point.size() != 2:
+		return false
+	player.global_position = Vector2(float(point[0]), float(point[1]))
+	player.velocity = Vector2.ZERO
+	var facing: Array = world.get("facing", [0, 1])
+	if facing.size() == 2:
+		player.facing = Vector2(float(facing[0]), float(facing[1]))
+	player.call("_update_animation", false, 0.0)
+	elapsed_seconds = maxf(0.0, float(snapshot.get("elapsed_seconds", 0.0)))
+	# Sync persistent door/interior visuals before a restored modal hides exploration.
+	_select_target()
+	if not ui.import_save_data(snapshot.get("ui", {})):
+		return false
+	var audio_data: Dictionary = snapshot.get("audio", {})
+	if not audio_data.is_empty():
+		bgm.import_save_data(audio_data)
+	var ui_data: Dictionary = snapshot.get("ui", {})
+	var puzzle_data: Dictionary = ui_data.get("puzzle", {})
+	var resume_context := StringName(puzzle_data.get("resume_audio_context", ""))
+	if resume_context in [&"cg_01", &"cg_02", &"cg_03", &"cg_04_luna", &"cg_04_truth"]:
+		bgm.set_context(resume_context)
+	bgm.set_walking(false, level.level_id == &"courtyard")
+	ui.set_status(level.display_name, state.fragment_count())
+	_on_view_state_changed(ui.modal_open)
+	_fit_camera()
+	return true
 
 func _physics_process(_delta: float) -> void:
 	player.input_blocked = transitioning or ui.modal_open or ui.is_controls_hint_open()
@@ -168,6 +231,11 @@ func _replace_level(packed: PackedScene, scene_path: String, spawn_id: StringNam
 		push_error("Invalid level scene: " + scene_path)
 		return false
 	var marker: Marker2D = next_level.get_spawn(spawn_id)
+	if spawn_id == &"":
+		for candidate in next_level.get_node("SpawnPoints").get_children():
+			if candidate is Marker2D:
+				marker = candidate
+				break
 	if marker == null:
 		push_error("Missing spawn '%s' in %s" % [spawn_id, scene_path])
 		next_level.free()

@@ -118,6 +118,20 @@ func _begin_reveal(presentation_id: int, text: String) -> void:
 	_tween.chain().tween_callback(_finish_reveal)
 
 
+func settle(text: String, placeholder_title: String = "") -> void:
+	# Resume an already presented memory without replaying its fade or completion.
+	present(text, placeholder_title)
+	_presentation_id += 1
+	_kill_tween()
+	_body.text = text
+	_body.visible_characters = -1
+	_content.position = Vector2.ZERO
+	_content.modulate.a = 1.0
+	_footer.modulate.a = 1.0
+	modulate.a = 1.0
+	_revealed = true
+
+
 func handle_input(event: InputEvent) -> bool:
 	if not _active:
 		return false

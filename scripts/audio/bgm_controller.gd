@@ -286,3 +286,49 @@ func _try_release_intro() -> void:
 	_intro_locked = false
 	_context = _pending_context
 	_apply_context(_context)
+
+## Persist narrative checkpoints and current tracks; transient one-shot effects end.
+func export_save_data() -> Dictionary:
+	return {
+		"context": String(_context), "outdoor": _outdoor,
+		"intro_locked": _intro_locked, "intro_started": _intro_started,
+		"intro_finished": _intro_finished, "intro_left": _intro_left,
+		"intro_queued": _intro_queued, "queued_intro_left": _queued_intro_left,
+		"pending_context": String(_pending_context),
+		"uplifter_pending": _uplifter_pending,
+		"daily_resume_requested": _daily_resume_requested,
+		"daily_cut_position": _daily_cut_position,
+		"music": _music.export_save_data(),
+		"ambience": _ambience.export_save_data(),
+		"rain": _rain.export_save_data(),
+		"uplifter_position": _uplifter.get_playback_position(),
+	}
+
+func import_save_data(data: Dictionary) -> void:
+	stop()
+	suspend()
+	_context = StringName(data.get("context", "exploration"))
+	_outdoor = bool(data.get("outdoor", false))
+	_intro_locked = bool(data.get("intro_locked", false))
+	_intro_started = bool(data.get("intro_started", false))
+	_intro_finished = bool(data.get("intro_finished", false))
+	_intro_left = bool(data.get("intro_left", false))
+	_intro_queued = bool(data.get("intro_queued", false))
+	_queued_intro_left = bool(data.get("queued_intro_left", false))
+	_pending_context = StringName(data.get("pending_context", "exploration"))
+	_uplifter_pending = bool(data.get("uplifter_pending", false))
+	_daily_resume_requested = bool(data.get("daily_resume_requested", false))
+	_daily_cut_position = maxf(0.0, float(data.get("daily_cut_position", 0.0)))
+	_restore_channel(_music, data.get("music", {}), MUSIC.values())
+	_restore_channel(_ambience, data.get("ambience", {}), ["res://assets/audio/ambience/indoor.wav", "res://assets/audio/ambience/outdoor.wav"])
+	_restore_channel(_rain, data.get("rain", {}), ["res://assets/audio/ambience/rain.wav"])
+	if _uplifter_pending:
+		_uplifter.stream = load("res://assets/audio/sfx/uplifter.wav") as AudioStream
+		_uplifter.play(maxf(0.0, float(data.get("uplifter_position", 0.0))))
+	_started = true
+	# The menu resumes playback after its loading fade completes.
+	suspend()
+
+func _restore_channel(channel: Channel, data: Dictionary, allowed_paths: Array) -> void:
+	if String(data.get("path", "")) in allowed_paths:
+		channel.import_save_data(data)

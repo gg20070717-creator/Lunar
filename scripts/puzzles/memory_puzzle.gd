@@ -13,6 +13,7 @@ const TokenScript = preload("res://scripts/puzzles/memory_token.gd")
 const FONT = preload("res://ui_font.tres")
 const TextStyle = preload("res://scripts/ui_text_style.gd")
 const StoryDialogue = preload("res://scripts/ui/story_dialogue.gd")
+const StoryCGView = preload("res://scripts/ui/story_cg_view.gd")
 const MoonlightHint = preload("res://scripts/puzzles/moonlight_hint.gd")
 const MoonlightEffects = preload("res://scripts/puzzles/moonlight_effects.gd")
 const MoonlightSentenceMist = preload("res://scripts/puzzles/moonlight_sentence_mist.gd")
@@ -59,9 +60,9 @@ var introduction_started := false
 var story_dialogue: StoryDialogue
 var story_shade: ColorRect
 var story_tween: Tween
+var story_cg_view: StoryCGView
 var story_canvas: Control
 var story_panels: Dictionary = {}
-const STORY_CANVAS_SIZE := Vector2(3508, 2480)
 var introduction_pages: Array[Dictionary] = []
 var narrative_pages: Array[Dictionary] = []
 var followup_pages: Array[Dictionary] = []
@@ -88,6 +89,7 @@ var template_index := 0
 var sentence_suffix: Label
 var sentence_selector: HBoxContainer
 var template_buttons: Array[Button] = []
+var _restoring_save := false
 
 func _ready() -> void:
 	var ui_theme := Theme.new()
@@ -443,10 +445,8 @@ func _layout() -> void:
 	if not narrative_pages.is_empty():
 		var story_fit := minf(w / 1920.0, h / 1080.0)
 		var dialogue_top := (h - 1080.0 * story_fit) * 0.5 + StoryDialogue.PANEL_RECT.position.y * story_fit
-		if not story_panels.is_empty():
-			var composition_fit := minf(w / STORY_CANVAS_SIZE.x, dialogue_top / STORY_CANVAS_SIZE.y)
-			story_canvas.scale = Vector2.ONE * composition_fit
-			story_canvas.position = (Vector2(w, dialogue_top) - STORY_CANVAS_SIZE * composition_fit) * 0.5
+		if is_instance_valid(story_cg_view) and not story_panels.is_empty():
+			story_cg_view.size = Vector2(w, dialogue_top)
 		else:
 			story_image.set_anchors_and_offsets_preset(Control.PRESET_TOP_LEFT)
 			story_image.position = Vector2.ZERO
@@ -685,9 +685,8 @@ func _show_story() -> void:
 	feedback.hide()
 	story_image.texture = definition.success_image
 	story_image.visible = definition.success_image != null and story_panels.is_empty()
-	story_canvas.visible = not story_panels.is_empty()
-	for panel: TextureRect in story_panels.values():
-		panel.hide()
+	story_cg_view.clear()
+	story_cg_view.visible = not story_panels.is_empty()
 	story_panel.color = Color.BLACK if not narrative_pages.is_empty() else Color(0.85, 0.85, 0.85)
 	story_panel.show()
 	_layout()
@@ -840,8 +839,8 @@ func reset_attempt() -> void:
 	feedback.hide()
 	story_panel.hide()
 	feedback.modulate.a = 1.0
-	for panel: TextureRect in story_panels.values():
-		panel.hide()
+	if is_instance_valid(story_cg_view):
+		story_cg_view.clear()
 	esc_hint.show()
 	_layout()
 	_refresh_hint()
@@ -923,6 +922,7 @@ func _setup_story() -> void:
 	story_shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	story_shade.hide()
 	story_dialogue = StoryDialogue.new()
+	story_dialogue.render_cg_images = false
 	story_dialogue.name = "WellDialogue"
 	add_child(story_dialogue)
 	story_dialogue.finished.connect(_on_story_dialogue_finished)
@@ -976,54 +976,217 @@ func _return_to_world() -> void:
 	story_tween.tween_callback(request_exit)
 
 func _on_story_page_changed(index: int) -> void:
-	if phase != Phase.STORY:
+	if _restoring_save or phase != Phase.STORY or index < 0 or index >= narrative_pages.size():
 		return
 	var context_id := StringName(narrative_pages[index].get("audio_cue", &""))
 	if context_id != &"":
 		audio_cue.emit(context_id)
-	var image_path := String(narrative_pages[index].get("cg_image", ""))
-	if image_path.is_empty():
-		return
-	if story_panels.has(image_path):
-		var panel: TextureRect = story_panels[image_path]
-		if not panel.visible:
-			panel.modulate.a = 0.0
-			panel.show()
-			create_tween().tween_property(panel, "modulate:a", 1.0, 0.35)
-		return
-	var artwork := load(image_path) as Texture2D
-	if artwork != null:
-		story_image.texture = artwork
-		story_image.show()
+	story_cg_view.show_page(narrative_pages[index])
 
 func _build_story_panels() -> void:
-	if is_instance_valid(story_canvas):
-		story_panel.remove_child(story_canvas)
-		story_canvas.queue_free()
-	story_panels.clear()
-	story_canvas = Control.new()
-	story_canvas.name = "StoryComposition"
-	story_canvas.size = STORY_CANVAS_SIZE
-	story_canvas.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	story_panel.add_child(story_canvas)
-	story_canvas.hide()
-	for page: Dictionary in narrative_pages:
-		var image_path := String(page.get("cg_image", ""))
-		if image_path.is_empty() or story_panels.has(image_path):
-			continue
-		var artwork := load(image_path) as AtlasTexture
-		if artwork == null:
-			continue
-		var panel := TextureRect.new()
-		panel.name = "StoryPanel%d" % (story_panels.size() + 1)
-		panel.texture = artwork
-		# Crop out the white borders while retaining the source composition.
-		panel.position = artwork.region.position
-		panel.size = artwork.region.size
-		panel.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		panel.stretch_mode = TextureRect.STRETCH_SCALE
-		panel.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
-		panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		story_canvas.add_child(panel)
-		panel.hide()
-		story_panels[image_path] = panel
+	if is_instance_valid(story_cg_view):
+		story_panel.remove_child(story_cg_view)
+		story_cg_view.queue_free()
+	story_cg_view = StoryCGView.new()
+	story_cg_view.name = "StoryComposition"
+	story_panel.add_child(story_cg_view)
+	story_cg_view.prepare(narrative_pages)
+	story_canvas = story_cg_view.canvas
+	story_panels = story_cg_view.panels
+
+
+func export_save_data() -> Dictionary:
+	var stable_phase := String(Phase.find_key(phase))
+	var saved_count := resistance_attempt_count
+	var saved_selected: Array[StringName] = selected_ids.duplicate()
+	var saved_outcome: Dictionary = active_outcome.duplicate(true)
+	if phase in [Phase.RISING, Phase.FEEDBACK]:
+		stable_phase = "WORD"
+	elif phase == Phase.RESOLVING:
+		var kind := StringName(active_outcome.get("kind", &""))
+		if kind in [&"micro", &"cg_placeholder"]:
+			stable_phase = "ECHO"
+		elif kind == &"cg_resistance" and active_story_branch.is_empty():
+			saved_count += 1
+			stable_phase = "RESISTANCE" if saved_count < 3 else "STORY"
+		else:
+			stable_phase = "STORY"
+	var saved_dialogue: Dictionary = {}
+	if phase in [Phase.INTRO, Phase.STORY, Phase.RESISTANCE] and story_dialogue.active:
+		saved_dialogue = story_dialogue.export_save_data()
+	var saved_slots: Array[StringName] = slot_ids.duplicate()
+	if stable_phase == "RESISTANCE":
+		saved_slots.assign([&"", &""])
+	if phase == Phase.ECHO and bool(memory_echo.get("_closing")) and StringName(active_outcome.get("kind", &"")) == &"micro":
+		# Confirmation already happened; complete the outgoing fade as a reset.
+		stable_phase = "MOON"
+		saved_selected.clear()
+		saved_slots.assign([&"", &""])
+		saved_outcome.clear()
+	var snapshot := {
+		"definition_path": definition.resource_path,
+		"scene_path": scene_file_path,
+		"phase": stable_phase,
+		"available_fragment_ids": StoryDialogue.save_value(available_fragment_ids),
+		"selected_ids": StoryDialogue.save_value(saved_selected),
+		"slot_ids": StoryDialogue.save_value(saved_slots),
+		"template_index": template_index,
+		"resistance_attempt_count": saved_count,
+		"introduction_started": introduction_started,
+		"branch_id": String(active_story_branch.get("id", active_outcome.get("branch_id", &""))) if stable_phase == "STORY" else "",
+		"active_outcome": StoryDialogue.save_value(saved_outcome),
+		"dialogue": saved_dialogue,
+		"drag_hint_open": drag_hint.is_open,
+	}
+	if phase == Phase.RESOLVING and stable_phase == "STORY":
+		var story_id := StringName(active_outcome.get("id", &""))
+		if story_id in [&"cg_01", &"cg_02", &"cg_03"]:
+			snapshot["resume_audio_context"] = String(story_id)
+		elif story_id == &"cg_04":
+			snapshot["resume_audio_context"] = "cg_04_truth" if StringName(snapshot["branch_id"]) == &"truth" else "cg_04_luna"
+	return snapshot
+
+
+func import_save_data(data: Dictionary) -> bool:
+	var saved_phase: Variant = data.get("phase", "MOON")
+	var fragments: Variant = data.get("available_fragment_ids", [])
+	var saved_selected: Variant = data.get("selected_ids", [])
+	var saved_slots: Variant = data.get("slot_ids", ["", ""])
+	var saved_template: Variant = data.get("template_index", 0)
+	var saved_count: Variant = data.get("resistance_attempt_count", 0)
+	var saved_outcome: Variant = data.get("active_outcome", {})
+	var saved_dialogue: Variant = data.get("dialogue", {})
+	var branch_id: Variant = data.get("branch_id", "")
+	if not saved_phase is String or saved_phase not in ["MOON", "WORD", "RISING", "FEEDBACK", "INTRO", "STORY", "ECHO", "RESISTANCE"]:
+		return false
+	if not fragments is Array or not saved_selected is Array or not saved_slots is Array or saved_slots.size() != 2:
+		return false
+	if not saved_outcome is Dictionary or not saved_dialogue is Dictionary or not branch_id is String:
+		return false
+	if not StoryDialogue._save_number(saved_template) or not StoryDialogue._save_number(saved_count):
+		return false
+	if int(saved_template) < 0 or int(saved_template) >= maxi(1, definition.sentence_templates.size()) or int(saved_count) < 0 or int(saved_count) > 3:
+		return false
+	var owned: Array[StringName] = []
+	for fragment: Variant in fragments:
+		if not fragment is String and not fragment is StringName:
+			return false
+		owned.append(StringName(fragment))
+	var restored_selected: Array[StringName] = []
+	for choice: Variant in saved_selected:
+		if not choice is String and not choice is StringName:
+			return false
+		var choice_id := StringName(choice)
+		if not choices.has(choice_id) or restored_selected.has(choice_id) or not owned.has(choices[choice_id].fragment_id):
+			return false
+		restored_selected.append(choice_id)
+	var restored_slots: Array[StringName] = []
+	for choice: Variant in saved_slots:
+		if not choice is String and not choice is StringName:
+			return false
+		var choice_id := StringName(choice)
+		if choice_id != &"" and (not restored_selected.has(choice_id) or restored_slots.has(choice_id)):
+			return false
+		restored_slots.append(choice_id)
+	if saved_phase == "MOON" and (restored_slots[0] != &"" or restored_slots[1] != &""):
+		return false
+	if saved_phase in ["WORD", "RISING", "FEEDBACK", "RESISTANCE"] and restored_selected.is_empty():
+		return false
+	_restoring_save = true
+	closing = false
+	available_fragment_ids.assign(owned)
+	reset_attempt()
+	drag_hint.stop()
+	show_drag_hint = false
+	selected_ids.assign(restored_selected)
+	slot_ids.assign(restored_slots)
+	template_index = int(saved_template)
+	resistance_attempt_count = int(saved_count)
+	introduction_started = bool(data.get("introduction_started", true))
+	active_outcome = saved_outcome.duplicate(true)
+	# Reconstruct the source page groups before restoring a branch or saved page.
+	var constants: Dictionary = definition.story_script.get_script_constant_map() if definition.story_script != null else {}
+	narrative_pages.assign(constants.get("NARRATIVE_PAGES", []).duplicate(true))
+	followup_pages.assign(constants.get("FOLLOWUP_PAGES", []).duplicate(true))
+	_configure_narrative_audio()
+	# Resistance is still an attempt, even when an older save names its target.
+	if saved_phase == "STORY" and not branch_id.is_empty() and not _activate_story_branch(StringName(branch_id)):
+		_restoring_save = false
+		return false
+	if not definition.sentence_templates.is_empty():
+		_apply_sentence_template()
+	phase = Phase.WORD if saved_phase in ["RISING", "FEEDBACK"] else int(Phase[saved_phase])
+	for choice_id: StringName in moon_tokens:
+		moon_tokens[choice_id].visible = phase == Phase.MOON and owned.has(choices[choice_id].fragment_id) and not selected_ids.has(choice_id)
+		var label: Label = underwater_labels[choice_id]
+		label.visible = phase == Phase.MOON and selected_ids.has(choice_id)
+		label.modulate.a = 1.0
+	if phase in [Phase.WORD, Phase.RESISTANCE]:
+		for choice_id: StringName in selected_ids:
+			word_tokens[choice_id] = _make_token(choices[choice_id], &"word")
+	_layout()
+	_refresh_hint()
+	if phase == Phase.MOON:
+		if bool(data.get("drag_hint_open", false)):
+			drag_hint.present(definition.drag_hint_target_name)
+			var hint_fade: Tween = drag_hint.get("_fade_tween")
+			if is_instance_valid(hint_fade):
+				hint_fade.kill()
+			drag_hint.modulate.a = 1.0
+			_layout_drag_hint()
+	elif phase in [Phase.INTRO, Phase.STORY, Phase.RESISTANCE]:
+		var restore_dialogue: Dictionary = saved_dialogue.duplicate(true)
+		if restore_dialogue.is_empty():
+			var source_pages: Array[Dictionary] = narrative_pages if phase == Phase.STORY else introduction_pages
+			if phase == Phase.RESISTANCE:
+				var resistance_index := resistance_attempt_count - 1
+				if resistance_index < 0 or resistance_index >= resistance_pages.size():
+					_restoring_save = false
+					return false
+				source_pages = [resistance_pages[resistance_index].duplicate(true)]
+			restore_dialogue = {"pages": StoryDialogue.save_value(source_pages), "page_index": 0, "revealed_characters": 0}
+		if not story_dialogue.import_save_data(restore_dialogue):
+			_restoring_save = false
+			return false
+		story_dialogue.move_to_front()
+		if phase == Phase.STORY:
+			narrative_pages.assign(story_dialogue.pages.duplicate(true))
+			_build_story_panels()
+			story_panel.color = Color.BLACK
+			story_panel.modulate.a = 1.0
+			story_panel.show()
+			story_image.texture = definition.success_image
+			story_image.visible = definition.success_image != null and story_panels.is_empty()
+			story_cg_view.visible = not story_panels.is_empty()
+			for index in range(story_dialogue.page_index + 1):
+				story_cg_view.show_page(narrative_pages[index])
+			if story_cg_view.has_method("settle"):
+				story_cg_view.call("settle")
+			for control: Control in [water, sentence, cards, underwater_words, esc_hint, enter_hint, feedback]:
+				control.hide()
+		else:
+			story_shade.show()
+			if phase == Phase.INTRO:
+				for control: Control in [water, sentence, cards, underwater_words, esc_hint, enter_hint, feedback]:
+					control.hide()
+			else:
+				slot_ids.assign([&"", &""])
+				_position_words()
+	elif phase == Phase.ECHO:
+		for control: Control in [water, sentence, cards, underwater_words, esc_hint, enter_hint, feedback]:
+			control.hide()
+		var placeholder := String(active_outcome.get("title", "")) if StringName(active_outcome.get("kind", &"")) == &"cg_placeholder" else ""
+		memory_echo.move_to_front()
+		memory_echo.settle(String(active_outcome.get("text", "")), placeholder)
+	_layout()
+	_refresh_hint()
+	_clear_moonlight_effects()
+	if is_instance_valid(moonlight_enter):
+		moonlight_enter.modulate.a = 1.0
+	_restoring_save = false
+	if phase == Phase.STORY:
+		_emit_story_audio()
+		var context_id := StringName(narrative_pages[story_dialogue.page_index].get("audio_cue", &""))
+		if context_id != &"":
+			audio_cue.emit(context_id)
+	return true

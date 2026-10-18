@@ -1,0 +1,52 @@
+{
+	"format": "lunar_save_preset",
+	"version": 1,
+	"name": "碎片4",
+	"snapshot": {
+		"elapsed_seconds": 0,
+		"state": {
+			"fragments": [
+				"bedroom_photo_01",
+				"corridor_photo_02",
+				"memory_fragment_03",
+				"memory_fragment_04",
+				"memory_fragment_05"
+			],
+			"keys": ["studio_key_01"],
+			"seen_story_events": [
+				"brush_wash_memory_intro",
+				"fish_tank_memory_intro",
+				"tent_storage_memory_intro"
+			],
+			"seen_memory_stories": ["cg_01", "cg_02", "cg_03"],
+			"memory_story_branches": {},
+			"unlocked_endings": [],
+			"current_ending": ""
+		},
+		"world": {
+			"scene_path": "res://scenes/first_floor.tscn",
+			"position": [741.475, 608.05],
+			"facing": [0, 1]
+		},
+		"ui": {
+			"mode": "puzzle",
+			"puzzle_drag_hint_seen": true,
+			"puzzle": {
+				"definition_path": "res://resources/tent_storage_memory_puzzle.tres",
+				"phase": "MOON",
+				"available_fragment_ids": [
+					"bedroom_photo_01",
+					"corridor_photo_02",
+					"memory_fragment_03",
+					"memory_fragment_04",
+					"memory_fragment_05"
+				],
+				"selected_ids": [],
+				"slot_ids": ["", ""],
+				"template_index": 0,
+				"resistance_attempt_count": 0,
+				"introduction_started": true
+			}
+		}
+	}
+}

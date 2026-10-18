@@ -24,6 +24,7 @@ var puzzle_returning := false
 var pending_puzzle_dialogue: Array[Dictionary] = []
 var pending_ending_story: StringName = &""
 var active_story_id: StringName = &""
+var active_ending_id: StringName = &""
 var opaque_dialogue := false
 var ending_screen: VBoxContainer
 var ending_title: Label
@@ -477,6 +478,7 @@ func _on_dialogue_finished() -> void:
 
 func _show_ending_screen(ending_id: StringName) -> void:
 	dialogue.stop()
+	active_ending_id = ending_id
 	active_story_id = &""
 	opaque_dialogue = false
 	modal_mode = ModalMode.ENDING
@@ -549,6 +551,7 @@ func close_view() -> void:
 	modal_mode = ModalMode.NONE
 	puzzle_returning = false
 	active_story_id = &""
+	active_ending_id = &""
 	opaque_dialogue = false
 	ending_screen.hide()
 	dialogue.stop()
@@ -574,3 +577,245 @@ func close_view() -> void:
 	else:
 		# The CG has faded out; keep movement locked through the new dialogue.
 		show_dialogue(followup_pages)
+
+
+func export_save_data() -> Dictionary:
+	var data := {
+		"mode": "exploration",
+		"puzzle_drag_hint_seen": puzzle_drag_hint_seen,
+		"controls_hint_was_shown": controls_hint.was_shown,
+		"controls_hint_open": controls_hint.is_open,
+		"note": {"text": note_label.text, "remaining": note_remaining, "anchor": [note_anchor.x, note_anchor.y]},
+	}
+	match modal_mode:
+		ModalMode.PUZZLE:
+			if is_instance_valid(active_puzzle):
+				if puzzle_returning or active_puzzle.phase == active_puzzle.Phase.RETURNING:
+					# Progress was already recorded; resume after the outgoing fade.
+					if not pending_puzzle_dialogue.is_empty():
+						data["mode"] = "dialogue"
+						data["dialogue"] = {"pages": StoryDialogue.save_value(pending_puzzle_dialogue), "page_index": 0, "revealed_characters": 0}
+				else:
+					data["mode"] = "puzzle"
+					data["puzzle"] = active_puzzle.export_save_data()
+		ModalMode.DIALOGUE:
+			data["mode"] = "dialogue"
+			data["story_id"] = String(active_story_id)
+			data["opaque_dialogue"] = opaque_dialogue
+			data["dialogue"] = dialogue.export_save_data()
+		ModalMode.ENDING:
+			data["mode"] = "ending"
+			data["ending_id"] = String(active_ending_id)
+		ModalMode.IMAGE:
+			data["mode"] = "image"
+			var paths: Array[String] = []
+			for image: Texture2D in image_slides:
+				paths.append(image.resource_path)
+			data["image"] = {
+				"title": current_view_title, "artwork_path": _texture_path(view_texture.texture),
+				"notice": view_notice.text, "text": view_caption.text, "exit_hint": view_footer.visible,
+				"slides": paths, "slide_index": image_slide_index, "slide_duration": image_slide_duration,
+				"slide_elapsed": image_slide_elapsed,
+			}
+		ModalMode.COLLECTION:
+			data["mode"] = "collection"
+			data["collection"] = {
+				"pages": collection_pages.duplicate(), "page_index": collection_page,
+				"reward_page": collection_reward_page, "exit_hint": collection_exit_hint,
+				"large_artwork": collection_large_artwork,
+				"artwork_path": _texture_path(view_texture.texture if collection_large_artwork else collection_preview.artwork),
+				"placeholder_type": String(collection_preview.placeholder_type),
+			}
+	return data
+
+
+func import_save_data(data: Dictionary) -> bool:
+	var mode: Variant = data.get("mode", "exploration")
+	if not mode is String or mode not in ["exploration", "puzzle", "dialogue", "ending", "image", "collection"]:
+		return false
+	for field: String in ["puzzle", "dialogue", "image", "collection", "note"]:
+		if data.has(field) and not data[field] is Dictionary:
+			return false
+	_clear_for_save_restore()
+	puzzle_drag_hint_seen = bool(data.get("puzzle_drag_hint_seen", false))
+	match mode:
+		"puzzle":
+			if not _import_puzzle_save(data.get("puzzle", {})):
+				return false
+		"dialogue":
+			var story_id: Variant = data.get("story_id", "")
+			if not story_id is String:
+				return false
+			active_story_id = StringName(story_id)
+			opaque_dialogue = bool(data.get("opaque_dialogue", false))
+			modal_mode = ModalMode.DIALOGUE
+			modal_open = true
+			overlay.color = Color(0, 0, 0, 1.0 if opaque_dialogue else 0.6)
+			overlay.show()
+			if not dialogue.import_save_data(data.get("dialogue", {})):
+				return false
+		"ending":
+			var ending_id: Variant = data.get("ending_id", "")
+			if not ending_id is String or ending_id not in ["end1", "end2"]:
+				return false
+			active_ending_id = StringName(ending_id)
+			modal_mode = ModalMode.ENDING
+			modal_open = true
+			overlay.color = Color.BLACK
+			overlay.show()
+			ending_title.text = "真结局" if ending_id == "end2" else "假结局"
+			ending_screen.show()
+		"image":
+			if not _import_image_save(data.get("image", {})):
+				return false
+		"collection":
+			if not _import_collection_save(data.get("collection", {})):
+				return false
+	var saved_note: Dictionary = data.get("note", {})
+	var anchor: Variant = saved_note.get("anchor", [0, 0])
+	var remaining: Variant = saved_note.get("remaining", 0.0)
+	if anchor is Array and anchor.size() == 2 and _save_finite(anchor[0]) and _save_finite(anchor[1]) and _save_finite(remaining):
+		note_anchor = Vector2(float(anchor[0]), float(anchor[1]))
+		note_remaining = maxf(0.0, float(remaining))
+		note_label.text = String(saved_note.get("text", ""))
+		note_bubble.visible = note_remaining > 0.0 and not modal_open
+		note_label.visible = note_bubble.visible
+	if is_instance_valid(controls_hint.fade_tween):
+		controls_hint.fade_tween.kill()
+	controls_hint.was_shown = bool(data.get("controls_hint_was_shown", true))
+	controls_hint.is_open = bool(data.get("controls_hint_open", false))
+	controls_hint.visible = controls_hint.is_open
+	controls_hint.modulate.a = 1.0
+	_layout()
+	view_state_changed.emit(modal_open)
+	return true
+
+
+func _clear_for_save_restore() -> void:
+	# Loading never runs close_view's follow-up, branch, reward or ending handlers.
+	pending_puzzle_dialogue.clear()
+	pending_ending_story = &""
+	if get_viewport().gui_is_dragging() and get_viewport().has_method("gui_cancel_drag"):
+		get_viewport().call("gui_cancel_drag")
+	if is_instance_valid(active_puzzle):
+		active_puzzle.closing = true
+		root_control.remove_child(active_puzzle)
+		active_puzzle.queue_free()
+	active_puzzle = null
+	dialogue.stop()
+	clear_note()
+	image_slides.clear()
+	image_slide_index = 0
+	image_slide_elapsed = 0.0
+	collection_pages.clear()
+	collection_page = 0
+	collection_large_artwork = false
+	view_texture.texture = null
+	collection_preview.artwork = null
+	modal_mode = ModalMode.NONE
+	modal_open = false
+	puzzle_returning = false
+	active_story_id = &""
+	active_ending_id = &""
+	opaque_dialogue = false
+	for control: Control in [overlay, view_panel, view_texture, view_caption, view_notice, view_footer, collection_panel, ending_screen, prompt_bubble]:
+		control.hide()
+
+
+func _import_puzzle_save(data: Dictionary) -> bool:
+	var definition_path: Variant = data.get("definition_path", "")
+	if not definition_path is String or definition_path not in ["res://resources/well_memory_puzzle.tres", "res://resources/brush_wash_memory_puzzle.tres", "res://resources/fish_tank_memory_puzzle.tres", "res://resources/tent_storage_memory_puzzle.tres"]:
+		return false
+	var puzzle_definition := load(definition_path) as Resource
+	if puzzle_definition == null:
+		return false
+	var scene_path: Variant = data.get("scene_path", "")
+	if not scene_path is String:
+		return false
+	if scene_path.is_empty():
+		scene_path = "res://scenes/puzzles/tent_storage_memory_puzzle.tscn" if puzzle_definition.puzzle_id == &"tent_storage_memory" else "res://scenes/puzzles/memory_puzzle.tscn"
+	if scene_path not in ["res://scenes/puzzles/memory_puzzle.tscn", "res://scenes/puzzles/tent_storage_memory_puzzle.tscn"]:
+		return false
+	var puzzle_scene := load(scene_path) as PackedScene
+	var fragments: Variant = data.get("available_fragment_ids", [])
+	if not fragments is Array:
+		return false
+	var owned: Array[StringName] = []
+	for fragment: Variant in fragments:
+		if not fragment is String and not fragment is StringName:
+			return false
+		owned.append(StringName(fragment))
+	var hint_seen := puzzle_drag_hint_seen
+	puzzle_drag_hint_seen = true
+	var opened := open_puzzle(puzzle_definition, owned, false, puzzle_scene)
+	puzzle_drag_hint_seen = hint_seen
+	if not opened or not active_puzzle.import_save_data(data):
+		return false
+	return true
+
+
+func _import_image_save(data: Dictionary) -> bool:
+	var paths: Variant = data.get("slides", [])
+	var saved_index: Variant = data.get("slide_index", 0)
+	var duration: Variant = data.get("slide_duration", 2.0)
+	var elapsed: Variant = data.get("slide_elapsed", 0.0)
+	if not paths is Array or not StoryDialogue._save_number(saved_index) or not _save_finite(duration) or not _save_finite(elapsed) or float(duration) <= 0.0:
+		return false
+	var images: Array[Texture2D] = []
+	for path: Variant in paths:
+		var texture := _save_texture(path)
+		if texture == null:
+			return false
+		images.append(texture)
+	var artwork_path: Variant = data.get("artwork_path", "")
+	var artwork := _save_texture(artwork_path)
+	if not artwork_path is String or (not artwork_path.is_empty() and artwork == null):
+		return false
+	if not images.is_empty() and (int(saved_index) < 0 or int(saved_index) >= images.size()):
+		return false
+	show_view(String(data.get("title", "")), "", artwork, String(data.get("notice", "")), bool(data.get("exit_hint", false)), String(data.get("text", "")))
+	if not images.is_empty():
+		image_slides.assign(images)
+		image_slide_index = int(saved_index)
+		image_slide_duration = maxf(0.1, float(duration))
+		image_slide_elapsed = clampf(float(elapsed), 0.0, image_slide_duration)
+		view_texture.texture = image_slides[image_slide_index]
+		view_panel.hide()
+	return true
+
+
+func _import_collection_save(data: Dictionary) -> bool:
+	var saved_pages: Variant = data.get("pages", [])
+	var saved_index: Variant = data.get("page_index", 0)
+	var reward: Variant = data.get("reward_page", -1)
+	if not saved_pages is Array or saved_pages.is_empty() or not StoryDialogue._save_number(saved_index) or not StoryDialogue._save_number(reward):
+		return false
+	if int(saved_index) < 0 or int(saved_index) >= saved_pages.size():
+		return false
+	var text_pages: Array[String] = []
+	for page: Variant in saved_pages:
+		if not page is String:
+			return false
+		text_pages.append(page)
+	var artwork_path: Variant = data.get("artwork_path", "")
+	var artwork := _save_texture(artwork_path)
+	if not artwork_path is String or (not artwork_path.is_empty() and artwork == null):
+		return false
+	show_collection(text_pages, artwork, StringName(data.get("placeholder_type", "")), int(reward), bool(data.get("exit_hint", false)), bool(data.get("large_artwork", false)))
+	collection_page = int(saved_index)
+	_show_collection_page()
+	return true
+
+
+static func _texture_path(texture: Texture2D) -> String:
+	return texture.resource_path if texture != null else ""
+
+
+static func _save_texture(path: Variant) -> Texture2D:
+	if not path is String or not path.begins_with("res://") or not ResourceLoader.exists(path):
+		return null
+	return load(path) as Texture2D
+
+
+static func _save_finite(value: Variant) -> bool:
+	return (value is int or value is float) and is_finite(float(value))
