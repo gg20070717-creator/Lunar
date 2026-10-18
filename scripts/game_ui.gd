@@ -89,6 +89,7 @@ func _ready() -> void:
 	view_texture = TextureRect.new()
 	view_texture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	view_texture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	view_texture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	view_texture.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	overlay.add_child(view_texture)
 	view_caption = _label(overlay, "", 36, Color.BLACK)

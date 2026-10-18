@@ -2,7 +2,7 @@ extends CharacterBody2D
 @export var speed := 300.0
 @export var interaction_range := 65.0
 ## Visible height in world units; also used by camera framing.
-@export_range(32.0, 256.0, 1.0) var body_height := 150.0
+@export_range(32.0, 256.0, 1.0) var body_height := 120.0
 @export_range(0.0, 16.0, 1.0) var idle_bob_height := 2.0
 @export_range(0.1, 4.0, 0.1) var idle_bob_period := 0.8
 var input_blocked := false

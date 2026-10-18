@@ -1927,7 +1927,7 @@
             0,
             0,
             4000,
-            2808
+            1669
           ]
         },
         {
@@ -1983,8 +1983,18 @@
             1100,
             300
           ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_floor_lower_right.tres",
+          "region": [
+            1177,
+            1669,
+            2823,
+            1139
+          ]
         }
-      ]
+      ],
+      "layout_note": "按反馈裁除一楼左下空房：上部原画布切至 y=1669，下部仅显示 x>=1177；原 PNG 字节与 SHA-256 保留。"
     },
     {
       "id": "first_floor_wall_border",
@@ -2011,7 +2021,7 @@
             0,
             0,
             4000,
-            2806
+            1669
           ]
         },
         {
@@ -2031,8 +2041,18 @@
             24,
             600
           ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_wall_border_lower_right.tres",
+          "region": [
+            1177,
+            1669,
+            2823,
+            1137
+          ]
         }
-      ]
+      ],
+      "layout_note": "按反馈裁除一楼左下空房：上部原画布切至 y=1669，下部仅显示 x>=1177；原 PNG 字节与 SHA-256 保留。"
     },
     {
       "id": "first_floor_courtyard_door",
@@ -2516,6 +2536,42 @@
         }
       ],
       "playback": "按原照片排布逐步叠加：第1页左上→第7页加入左下→第11页加入右侧，已出现画面保留"
+    },
+    {
+      "id": "cg_02_window",
+      "source_filename": "CG2-2.png",
+      "source_path": "D:/微信/聊天记录/xwechat_files/wxid_n5xuklyzkxa321_cfaf/msg/file/2026-10/CG2-2.png",
+      "path": "res://assets/art/cg/act_02/cg_02_window.png",
+      "category": "cg",
+      "scene": "brush_wash_memory_success",
+      "canvas_size": [
+        3508,
+        2480
+      ],
+      "alpha_bounds": [
+        0,
+        0,
+        3508,
+        2480
+      ],
+      "source_alpha_range": [
+        255,
+        255
+      ],
+      "sha256": "5d220525390ee728f47b91418ecd0c0ae7f1ef550daa71249db07f00b1430d43",
+      "regions": [
+        {
+          "path": "res://resources/art/cg/act_02/cg_02_window.tres",
+          "region": [
+            0,
+            0,
+            3508,
+            2480
+          ]
+        }
+      ],
+      "playback": "洗笔桶情节块2第29—39页（index28—38）显示窗边夜景原图，从小泠“好了，别再说了。”切入，前28页餐桌争执保持黑底；完整读完后沿用原后续旁白与返回流程。",
+      "note": "用户原PNG按字节归档，无损导入、关闭mipmaps、CG显示使用线性过滤；完整画布等比显示，图片内像素不修改。CG2-2.png、CG2-2(1).png与CG2-2(2).png的SHA-256和分辨率相同。"
     },
     {
       "id": "studio_sketch_placeholder",
@@ -5434,9 +5490,54 @@
             1122,
             1024
           ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_wall_top.tres",
+          "region": [
+            0,
+            386,
+            1122,
+            24
+          ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_wall_left.tres",
+          "region": [
+            0,
+            410,
+            28,
+            978
+          ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_wall_right.tres",
+          "region": [
+            1098,
+            410,
+            24,
+            978
+          ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_wall_bottom_left.tres",
+          "region": [
+            0,
+            1388,
+            449,
+            22
+          ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_wall_bottom_right.tres",
+          "region": [
+            676,
+            1388,
+            446,
+            22
+          ]
         }
       ],
-      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。",
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；无损导入且关闭mipmaps。完整墙框Atlas保留归档，运行使用同图的上、左、右、左下与右下五个Atlas裁片，全部filter_clip=true；底墙在源x=449至676之间留227像素门洞，门片与地板门槛独立叠加，源图像素不修改。",
       "crop_analysis": {
         "method": "single_8_connected_alpha_component",
         "alpha_threshold": 0,
@@ -5479,12 +5580,21 @@
           "region": [
             0,
             397,
-            1171,
-            1024
+            1122,
+            1013
+          ]
+        },
+        {
+          "path": "res://resources/art/first_floor/first_floor_storage_threshold.tres",
+          "region": [
+            449,
+            1300,
+            227,
+            88
           ]
         }
       ],
-      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；Atlas仅指定显示裁区，无损导入且关闭mipmaps，场景显示与交互配置独立维护。 Atlas按alpha>0最大8连通主体外接矩形裁图，保留主体低alpha柔边并排除远端脏点；裁图矩形内部像素按源图保留。",
+      "note": "用户PNG按原字节归档，完整画布、像素与透明通道保留；无损导入且关闭mipmaps。主体分析范围保留在crop_analysis，运行主Atlas取(0,397,1122,1013)，约束到仓库墙框横向与底部边界，排除框外毛边及远端散点。另用同图(449,1300,227,88)的threshold Atlas作为底墙门洞内的地板小裁片；两资源均filter_clip=true，显示位置和尺寸由场景配置，源图像素不修改。",
       "crop_analysis": {
         "method": "largest_8_connected_alpha_component_bounds",
         "alpha_threshold": 0,
@@ -5523,7 +5633,14 @@
               2447
             ]
           }
-        ]
+        ],
+        "runtime_crop_bounds": [
+          0,
+          397,
+          1122,
+          1410
+        ],
+        "runtime_crop_policy": "clip_to_storage_wall_frame"
       }
     },
     {

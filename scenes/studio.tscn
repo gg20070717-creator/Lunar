@@ -1,4 +1,4 @@
-[gd_scene load_steps=43 format=3]
+[gd_scene load_steps=44 format=3]
 
 
 [ext_resource type="Script" path="res://scripts/level.gd" id="1"]
@@ -17,6 +17,7 @@
 [ext_resource type="Script" path="res://scripts/brush_wash_interaction.gd" id="brush_wash"]
 [ext_resource type="Texture2D" path="res://assets/art/cg/act_02/studio_sketch_placeholder.svg" id="sketch_artwork"]
 [ext_resource type="Texture2D" path="res://resources/art/shared/floor_stain_01.tres" id="art_floor_stain"]
+[ext_resource type="Texture2D" path="res://resources/art/shared/return_door.tres" id="art_return_door"]
 
 [ext_resource type="Texture2D" path="res://resources/art/studio/studio_floor.tres" id="art_studio_floor"]
 [ext_resource type="Texture2D" path="res://resources/art/studio/studio_back_wall.tres" id="art_studio_back_wall"]
@@ -139,11 +140,15 @@ draw_placeholder = false
 [node name="CorridorDoor" parent="Geometry" instance=ExtResource("2")]
 position = Vector2(408, 590)
 size = Vector2(132, 12)
-label = "门"
+artwork = ExtResource("art_return_door")
+artwork_size = Vector2(132, 41.853659)
+artwork_offset = Vector2(0, -14.926829)
+label = ""
 solid = false
 oval = false
 shade = Color(0.85, 0.85, 0.85, 1)
 label_size = 24
+z_index = 2
 
 [node name="WallBorderArtwork" parent="Geometry" instance=ExtResource("2")]
 solid = false
@@ -289,15 +294,15 @@ shade = Color(0.55, 0.82, 0.9, 0.72)
 label_size = 18
 
 [node name="BrushWashBucket" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(486, 261.5)
-size = Vector2(141, 147)
+position = Vector2(486, 305)
+size = Vector2(57.55102, 60)
 label = ""
 solid = false
 oval = false
 shade = Color(0.9, 0.9, 0.9, 1)
 label_size = 14
 artwork = ExtResource("art_brush_wash_bucket")
-artwork_size = Vector2(141, 147)
+artwork_size = Vector2(57.55102, 60)
 artwork_offset = Vector2(0, 0)
 
 [node name="StorageShelf" parent="Geometry" instance=ExtResource("2")]
@@ -414,8 +419,8 @@ draw_placeholder = false
 label = ""
 
 [node name="StorageShelfFootprint" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(753.3, 573)
-size = Vector2(87, 24)
+position = Vector2(753.3, 449.4)
+size = Vector2(87, 271.2)
 solid = true
 oval = false
 draw_placeholder = false

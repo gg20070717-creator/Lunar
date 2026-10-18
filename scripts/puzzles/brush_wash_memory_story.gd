@@ -17,7 +17,7 @@ const INTRO_PAGES: Array[Dictionary] = [
 	},
 ]
 
-# Act Two: black-screen dialogue only. Keep the supplied wording and stable route.
+# Act Two: the supplied window CG begins with Xiaoling; keep the wording and route.
 const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "",
@@ -162,56 +162,67 @@ const NARRATIVE_PAGES: Array[Dictionary] = [
 	{
 		"speaker": "小泠",
 		"text": "好了，别再说了。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "",
 		"text": "雨声渐强，小泠背光对着你，你看不清她的神情。和母亲谈完后，你决定和她把话说开。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "你",
 		"text": "我们还是可以在同一个城市上学呀！小泠，你画得这么好，为什么就是不乐意考首都美院呢？",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "小泠",
 		"text": "这是因为——",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "",
 		"text": "她把脸埋进手心，深呼吸几次，转头望向窗外。漫天乌云遮住了月亮。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "小泠",
 		"text": "我无法在没有月光的夜晚入睡。首都的光污染太严重了......在那里我睡不着。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "",
 		"text": "你无言以对。就因为这个？和前途与未来相比，这问题实在是太渺小了。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "",
 		"text": "她察觉到了你自以为已经掩藏好的质疑。望着你的眼睛，她咬住下唇，像是下定了决心。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "小泠",
 		"text": "我想明白了，无论如何，我想要和你在一起。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "",
 		"text": "她握住你的双手，你的心因希望剧烈地跳动起来。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	},
 	{
 		"speaker": "小泠",
 		"text": "一起努力吧。我们首都见。",
+		"cg_image": "res://resources/art/cg/act_02/cg_02_window.tres",
 		"show_protagonist": false
 	}
 ]

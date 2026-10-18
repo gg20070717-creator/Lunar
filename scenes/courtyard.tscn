@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" path="res://resources/art/courtyard/courtyard_tree.tres" id="art_tree"]
 [ext_resource type="Texture2D" path="res://resources/art/courtyard/courtyard_well.tres" id="art_well"]
 [ext_resource type="Texture2D" path="res://resources/art/courtyard/courtyard_bush.tres" id="art_bush"]
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_courtyard_door.tres" id="art_house_door"]
+[ext_resource type="Texture2D" path="res://resources/art/shared/return_door.tres" id="art_house_door"]
 
 [node name="Courtyard" type="Node2D"]
 script = ExtResource("1")
@@ -99,8 +99,8 @@ label_size = 14
 position = Vector2(102, 672.6)
 size = Vector2(132, 24)
 artwork = ExtResource("art_house_door")
-artwork_size = Vector2(120.4, 119.35)
-artwork_offset = Vector2(0, -47.675)
+artwork_size = Vector2(132, 41.853659)
+artwork_offset = Vector2(0, -8.926829)
 label = ""
 shade = Color(0.85, 0.85, 0.85, 1)
 solid = true
@@ -201,6 +201,7 @@ solid = false
 oval = false
 shade = Color(0.66, 0.65, 0.62, 1)
 label_size = 16
+z_index = 6
 
 [node name="TreeCanopy" parent="Geometry" instance=ExtResource("2")]
 draw_placeholder = false
@@ -292,9 +293,17 @@ oval = true
 shade = Color(0.69, 0.72, 0.66, 1)
 label_size = 16
 
+[node name="TreeFootprint" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(699, 609)
+size = Vector2(96, 108)
+solid = true
+oval = true
+draw_placeholder = false
+label = ""
+
 [node name="PoolFootprint" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(666, 145)
-size = Vector2(174, 60)
+position = Vector2(666, 97)
+size = Vector2(198, 166)
 solid = true
 oval = true
 draw_placeholder = false

@@ -1,4 +1,4 @@
-[gd_scene load_steps=58 format=3]
+[gd_scene load_steps=66 format=3]
 
 
 [ext_resource type="Script" path="res://scripts/level.gd" id="1"]
@@ -21,18 +21,12 @@
 
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_floor_wall.tres" id="art_floor_wall"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_wall_border.tres" id="art_wall_border"]
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_room_floor.tres" id="art_room_floor"]
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_room_wall.tres" id="art_room_wall"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_border_horizontal.tres" id="art_border_horizontal"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_border_vertical.tres" id="art_border_vertical"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_courtyard_door.tres" id="art_courtyard_door"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_stool.tres" id="art_stool"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_shoe_mat.tres" id="art_shoe_mat"]
 
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_lower_room_floor.tres" id="art_lower_room_floor"]
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_upper_room_threshold.tres" id="art_upper_room_threshold"]
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_lower_room_doorway.tres" id="art_lower_room_doorway"]
-[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_lower_room_threshold.tres" id="art_lower_room_threshold"]
 [ext_resource type="Texture2D" path="res://resources/art/shared/floor_stain_01.tres" id="art_floor_stain_01"]
 [ext_resource type="Texture2D" path="res://resources/art/shared/floor_stain_02.tres" id="art_floor_stain_02"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_shoe_cabinet.tres" id="art_shoe_cabinet"]
@@ -64,6 +58,21 @@
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_small_tent.tres" id="art_small_tent"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_draft_paper.tres" id="art_kitchen_draft_paper"]
 [ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_kitchen_storage_cabinet.tres" id="art_kitchen_storage_cabinet"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_floor_wall.tres" id="art_storage_floor_wall"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_wall_top.tres" id="art_storage_wall_top"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_wall_left.tres" id="art_storage_wall_left"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_wall_right.tres" id="art_storage_wall_right"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_wall_bottom_left.tres" id="art_storage_wall_bottom_left"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_wall_bottom_right.tres" id="art_storage_wall_bottom_right"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_threshold.tres" id="art_storage_threshold"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_window.tres" id="art_storage_window"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_door_01.tres" id="art_storage_door_inner"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_storage_door_02.tres" id="art_storage_door_outer"]
+[ext_resource type="Texture2D" path="res://resources/art/shared/consciousness_portal.tres" id="art_consciousness_portal"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_movie_ticket.tres" id="art_movie_ticket"]
+
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_floor_lower_right.tres" id="art_floor_lower_right"]
+[ext_resource type="Texture2D" path="res://resources/art/first_floor/first_floor_wall_border_lower_right.tres" id="art_border_lower_right"]
 
 [node name="FirstFloor" type="Node2D"]
 texture_filter = 1
@@ -74,47 +83,73 @@ camera_bounds = Rect2(25.000000, 56.000000, 1424.000000, 1004.000000)
 
 [node name="MovementBounds" parent="." instance=ExtResource("5")]
 area = Rect2(35.000000, 200.000000, 1400.000000, 847.000000)
-outline = PackedVector2Array(420, 200, 1340, 200, 1340, 407, 1435, 407, 1435, 1047, 35, 1047, 35, 254.645161, 420, 254.645161)
+outline = PackedVector2Array(420, 200, 1340, 200, 1340, 407, 1435, 407, 1435, 1047, 446.95, 1047, 446.95, 648.15, 35, 648.15, 35, 338.4, 420, 338.4)
 
 [node name="Geometry" type="Node2D" parent="."]
 
 
 [node name="Floor" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(1400.000000, 982.800000)
+artwork_size = Vector2(1400, 584.15)
 artwork = ExtResource("art_floor_wall")
 label = ""
 solid = false
-size = Vector2(1400.000000, 982.800000)
-position = Vector2(735.000000, 555.400000)
+size = Vector2(1400, 584.15)
+position = Vector2(735, 356.075)
 
 [node name="UpperRoomFloor" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(385.000000, 295.854839)
-artwork = ExtResource("art_room_floor")
+artwork_size = Vector2(392.7, 354.55)
+artwork = ExtResource("art_storage_floor_wall")
 label = ""
 solid = false
-size = Vector2(385.000000, 295.854839)
-position = Vector2(227.500000, 402.572581)
-
-[node name="LowerRoomFloor" parent="Geometry" instance=ExtResource("2")]
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(412.000000, 262.000000)
-artwork = ExtResource("art_lower_room_floor")
-label = ""
-solid = false
-size = Vector2(412.000000, 262.000000)
-position = Vector2(241.000000, 916.000000)
+size = Vector2(392.7, 354.55)
+position = Vector2(231.35, 380.225)
+visible = false
 
 [node name="WallBorderArtwork" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(1400.000000, 982.100000)
+artwork_size = Vector2(1400, 584.15)
 artwork = ExtResource("art_wall_border")
 z_index = 1
 label = ""
 solid = false
-size = Vector2(1400.000000, 982.100000)
-position = Vector2(735.000000, 555.050000)
+size = Vector2(1400, 584.15)
+position = Vector2(735, 356.075)
+
+[node name="FloorLowerRight" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(940.975, 847.475)
+size = Vector2(988.05, 398.65)
+artwork = ExtResource("art_floor_lower_right")
+artwork_size = Vector2(988.05, 398.65)
+solid = false
+label = ""
+
+[node name="WallBorderLowerRight" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(940.975, 847.125)
+size = Vector2(988.05, 397.95)
+artwork = ExtResource("art_border_lower_right")
+artwork_size = Vector2(988.05, 397.95)
+solid = false
+label = ""
+z_index = 1
+
+[node name="HallBottomWall" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(240.975, 652.15)
+size = Vector2(411.95, 8)
+artwork = ExtResource("art_border_horizontal")
+artwork_size = Vector2(411.95, 8)
+solid = true
+label = ""
+
+[node name="LivingLeftWall" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(442.95, 847.575)
+size = Vector2(8, 398.85)
+artwork = ExtResource("art_border_vertical")
+artwork_size = Vector2(7.7, 131.95)
+solid = true
+label = ""
+artwork_offset = Vector2(7.85, -133.45)
 
 [node name="MainBackWallLeft" parent="Geometry" instance=ExtResource("2")]
 draw_placeholder = false
@@ -177,8 +212,8 @@ position = Vector2(1344.000000, 235.500000)
 
 [node name="BottomWall" parent="Geometry" instance=ExtResource("2")]
 draw_placeholder = false
-position = Vector2(735.000000, 1051.000000)
-size = Vector2(1408.000000, 8.000000)
+position = Vector2(940.975, 1051)
+size = Vector2(996.05, 8)
 label = ""
 solid = true
 oval = false
@@ -187,10 +222,10 @@ label_size = 24
 
 [node name="LeftWall" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(8.000000, 793.000000)
+artwork_size = Vector2(8, 90.65)
 artwork = ExtResource("art_border_vertical")
-position = Vector2(31.000000, 650.500000)
-size = Vector2(8.000000, 793.000000)
+position = Vector2(31, 602.825)
+size = Vector2(8, 90.65)
 label = ""
 solid = true
 oval = false
@@ -198,11 +233,9 @@ shade = Color(0.35, 0.35, 0.35, 1)
 label_size = 24
 
 [node name="UpperRoomBackWall" parent="Geometry" instance=ExtResource("2")]
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(385.000000, 144.645161)
-artwork = ExtResource("art_room_wall")
-position = Vector2(227.500000, 182.322580)
-size = Vector2(385.000000, 144.645161)
+draw_placeholder = false
+position = Vector2(231.35, 272.95)
+size = Vector2(392.7, 130.9)
 label = ""
 solid = true
 oval = false
@@ -211,85 +244,94 @@ label_size = 24
 
 [node name="UpperRoomTopWall" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(401.000000, 12.000000)
-artwork = ExtResource("art_border_horizontal")
-position = Vector2(227.500000, 104.000000)
-size = Vector2(401.000000, 12.000000)
+artwork_size = Vector2(392.7, 8.4)
+artwork = ExtResource("art_storage_wall_top")
+position = Vector2(231.35, 203.3)
+size = Vector2(392.7, 8.4)
 label = ""
 solid = true
 oval = false
 shade = Color(0.35, 0.35, 0.35, 1)
 label_size = 24
+visible = false
 
 [node name="UpperRoomLeftBackWall" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(12.000000, 156.109677)
-artwork = ExtResource("art_border_vertical")
-position = Vector2(31.000000, 185.000000)
-size = Vector2(12.000000, 156.109677)
+artwork_size = Vector2(9.8, 342.3)
+artwork = ExtResource("art_storage_wall_left")
+position = Vector2(39.9, 378.65)
+size = Vector2(9.8, 342.3)
 label = ""
 solid = true
 oval = false
 shade = Color(0.35, 0.35, 0.35, 1)
 label_size = 24
+visible = false
 
 [node name="UpperRoomWindow" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(310.000000, 185.000000)
-size = Vector2(100, 75)
-label = "窗"
-solid = true
+position = Vector2(334.425, 260.35)
+size = Vector2(91.35, 64.4)
+artwork = ExtResource("art_storage_window")
+artwork_size = Vector2(91.35, 64.4)
+label = ""
+solid = false
 oval = false
 shade = Color(0.97, 0.97, 0.97, 1)
 label_size = 26
+z_index = 2
+visible = false
 
 [node name="UpperRoomRightWall" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(12.000000, 350.500000)
-artwork = ExtResource("art_border_vertical")
-position = Vector2(420.000000, 375.250000)
-size = Vector2(12.000000, 350.500000)
+artwork_size = Vector2(8.4, 342.3)
+artwork = ExtResource("art_storage_wall_right")
+position = Vector2(423.5, 378.65)
+size = Vector2(8.4, 342.3)
 label = ""
 solid = true
 oval = false
 shade = Color(0.35, 0.35, 0.35, 1)
 label_size = 24
+visible = false
 
 [node name="UpperRoomBottomWallLeft" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(135.000000, 12.000000)
-artwork = ExtResource("art_border_horizontal")
-position = Vector2(102.500000, 550.500000)
-size = Vector2(135.000000, 12.000000)
+artwork_size = Vector2(157.15, 7.7)
+artwork = ExtResource("art_storage_wall_bottom_left")
+position = Vector2(113.575, 553.65)
+size = Vector2(157.15, 7.7)
 label = ""
 solid = true
 oval = false
 shade = Color(0.35, 0.35, 0.35, 1)
 label_size = 24
+visible = false
 
 [node name="UpperRoomBottomWallRight" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(135.000000, 12.000000)
-artwork = ExtResource("art_border_horizontal")
-position = Vector2(352.500000, 550.500000)
-size = Vector2(135.000000, 12.000000)
+artwork_size = Vector2(156.1, 7.7)
+artwork = ExtResource("art_storage_wall_bottom_right")
+position = Vector2(349.65, 553.65)
+size = Vector2(156.1, 7.7)
 label = ""
 solid = true
 oval = false
 shade = Color(0.35, 0.35, 0.35, 1)
 label_size = 24
+visible = false
 
 [node name="UpperRoomDoor" parent="Geometry" instance=ExtResource("2")]
-z_index = 2
 artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(115.000000, 36.000000)
-artwork = ExtResource("art_upper_room_threshold")
-position = Vector2(227.500000, 550.500000)
-size = Vector2(115, 12)
+artwork_size = Vector2(79.45, 30.8)
+artwork = ExtResource("art_storage_threshold")
+position = Vector2(231.875, 552.6)
+size = Vector2(79.45, 30.8)
 label = ""
 solid = false
 oval = false
 shade = Color(0.85, 0.85, 0.85, 1)
 label_size = 20
+visible = false
 
 [node name="WallReturn" parent="Geometry" instance=ExtResource("2")]
 draw_placeholder = false
@@ -302,79 +344,45 @@ shade = Color(0.65, 0.65, 0.65, 1)
 label_size = 20
 
 [node name="StorageRoomGate" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(227.5, 550.5)
-size = Vector2(115, 14)
-label = "储物间"
+position = Vector2(231.875, 552.6)
+size = Vector2(79.45, 30.8)
+artwork = ExtResource("art_storage_door_inner")
+artwork_size = Vector2(79.1, 18.9)
+artwork_offset = Vector2(-0.175, -5.95)
+label = ""
 label_size = 14
 solid = true
 shade = Color(0.57, 0.62, 0.65, 1)
+z_index = 2
+
+[node name="OuterLeaf" parent="Geometry/StorageRoomGate" instance=ExtResource("2")]
+position = Vector2(0.175, 5.95)
+size = Vector2(79.1, 18.9)
+artwork = ExtResource("art_storage_door_outer")
+artwork_size = Vector2(79.1, 18.9)
+label = ""
+solid = false
+oval = false
 
 [node name="ConsciousnessDevice" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(295, 335)
-size = Vector2(160, 95)
-label = "意识深潜\n装置"
+position = Vector2(295, 395)
+size = Vector2(117, 152)
+artwork = ExtResource("art_consciousness_portal")
+artwork_size = Vector2(117, 152)
+label = ""
 label_size = 22
-solid = true
+solid = false
 shade = Color(0.66, 0.78, 0.80, 1)
-
-[node name="LowerRoomBackWallLeft" parent="Geometry" instance=ExtResource("2")]
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(35.000000, 136.612903)
-artwork = ExtResource("art_room_wall")
-position = Vector2(52.500000, 716.693548)
-size = Vector2(35.000000, 136.612903)
-label = ""
-solid = true
-oval = false
-shade = Color(0.65, 0.65, 0.65, 1)
-label_size = 24
-
-[node name="LowerRoomBackWallRight" parent="Geometry" instance=ExtResource("2")]
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(267.000000, 136.612903)
-artwork = ExtResource("art_room_wall")
-position = Vector2(313.500000, 716.693548)
-size = Vector2(267.000000, 136.612903)
-label = ""
-solid = true
-oval = false
-shade = Color(0.65, 0.65, 0.65, 1)
-label_size = 24
-
-[node name="LowerRoomDoor" parent="Geometry" instance=ExtResource("2")]
 z_index = 2
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(110.000000, 136.612903)
-artwork = ExtResource("art_lower_room_doorway")
-position = Vector2(125.000000, 716.693548)
-size = Vector2(110.000000, 136.612903)
-label = ""
-solid = false
-oval = false
-shade = Color(0.85, 0.85, 0.85, 1)
-label_size = 24
+visible = false
 
-[node name="LowerRoomThreshold" parent="Geometry" instance=ExtResource("2")]
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(110.000000, 52.000000)
-artwork = ExtResource("art_lower_room_threshold")
-z_index = 2
-label = ""
-solid = false
-size = Vector2(110.000000, 52.000000)
-position = Vector2(125.000000, 785.000000)
-
-[node name="LowerRoomRightWall" parent="Geometry" instance=ExtResource("2")]
-artwork_offset = Vector2(0.000000, 0.000000)
-artwork_size = Vector2(12.000000, 262.000000)
-artwork = ExtResource("art_border_vertical")
-position = Vector2(447.000000, 916.000000)
-size = Vector2(12.000000, 262.000000)
+[node name="ConsciousnessDeviceFootprint" parent="Geometry" instance=ExtResource("2")]
+position = Vector2(295, 459)
+size = Vector2(80, 24)
 label = ""
 solid = true
 oval = false
-shade = Color(0.35, 0.35, 0.35, 1)
-label_size = 24
+draw_placeholder = false
 
 [node name="ShoeMat" parent="Geometry" instance=ExtResource("2")]
 artwork_offset = Vector2(0.000000, 0.000000)
@@ -413,7 +421,7 @@ artwork_size = Vector2(50.75, 158.2)
 artwork_offset = Vector2(0, 0)
 
 [node name="Plant" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(695.000000, 371.221505)
+position = Vector2(650, 365)
 size = Vector2(48, 48)
 label = "盆栽"
 solid = true
@@ -641,8 +649,10 @@ z_index = 2
 
 [node name="MovieTicket" parent="Geometry" instance=ExtResource("2")]
 position = Vector2(1051.75, 817)
-size = Vector2(36, 18)
-label = "电影票"
+size = Vector2(18.428757, 36)
+artwork = ExtResource("art_movie_ticket")
+artwork_size = Vector2(18.428757, 36)
+label = ""
 label_size = 10
 solid = false
 shade = Color(0.95, 0.91, 0.78, 1)
@@ -741,6 +751,7 @@ oval = false
 shade = Color(0.55, 0.82, 0.90, 0.72)
 label_size = 20
 artwork_offset = Vector2(0, 0)
+visible = false
 
 [node name="HallPuddle" parent="Geometry" instance=ExtResource("2")]
 artwork = ExtResource("art_floor_stain_pack")
@@ -778,24 +789,6 @@ shade = Color(0.55, 0.82, 0.90, 0.72)
 label_size = 20
 artwork_offset = Vector2(0, 0)
 
-[node name="LowerRoomBookcase" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(120, 1015)
-size = Vector2(155, 60)
-label = "书柜"
-solid = true
-oval = false
-shade = Color(0.82, 0.82, 0.82, 1)
-label_size = 20
-
-[node name="LowerRoomWindow" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(320, 1037)
-size = Vector2(220, 14)
-label = "窗"
-solid = false
-oval = false
-shade = Color(0.79, 0.87, 0.89, 1)
-label_size = 20
-z_index = 2
 [node name="DiningPlate" parent="Geometry" instance=ExtResource("2")]
 position = Vector2(1055, 739)
 size = Vector2(42, 28)
@@ -829,15 +822,6 @@ label_size = 20
 z_index = 2
 draw_placeholder = false
 
-[node name="DiningOpenMagazine" parent="Geometry" instance=ExtResource("2")]
-position = Vector2(1135, 740)
-size = Vector2(60, 36)
-label = "杂志"
-solid = false
-oval = false
-shade = Color(0.97, 0.97, 0.97, 1)
-label_size = 16
-z_index = 2
 [node name="KitchenWastePaperBasket" parent="Geometry" instance=ExtResource("2")]
 position = Vector2(1310, 982)
 size = Vector2(48, 48)
@@ -848,11 +832,6 @@ shade = Color(0.84, 0.84, 0.84, 1)
 label_size = 14
 z_index = 2
 rotation = 0.349066
-[node name="MagazineFold" type="Line2D" parent="Geometry/DiningOpenMagazine"]
-points = PackedVector2Array(0, -17, 0, 17)
-width = 1.5
-default_color = Color(0.35, 0.35, 0.35, 1)
-
 [node name="KitchenDraftPaper" parent="Geometry" instance=ExtResource("2")]
 position = Vector2(1235.85, 978.2)
 rotation = 0.0
@@ -1063,7 +1042,7 @@ target_spawn = &"from_first_floor"
 prompt_offset = Vector2(0, -160)
 
 [node name="OpenStorageRoom" type="Area2D" parent="Interactables"]
-position = Vector2(227.5, 585)
+position = Vector2(231.875, 600)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1071,12 +1050,14 @@ monitorable = false
 script = ExtResource("storage_room_door")
 visual_path = NodePath("../../Geometry/StorageRoomGate")
 interaction_id = &"storage_room_door"
-interaction_rect = Rect2(-90, -75, 180, 140)
+interaction_rect = Rect2(-60, -10, 120, 45)
 required_key = &"storage_key_02"
 opened_event = &"storage_room_opened"
+room_visual_paths = Array[NodePath]([NodePath("../../Geometry/UpperRoomFloor"), NodePath("../../Geometry/UpperRoomTopWall"), NodePath("../../Geometry/UpperRoomLeftBackWall"), NodePath("../../Geometry/UpperRoomWindow"), NodePath("../../Geometry/UpperRoomRightWall"), NodePath("../../Geometry/UpperRoomBottomWallLeft"), NodePath("../../Geometry/UpperRoomBottomWallRight"), NodePath("../../Geometry/UpperRoomDoor"), NodePath("../../Geometry/ConsciousnessDevice"), NodePath("../../Geometry/UpperRoomPuddle")])
+room_interaction_paths = Array[NodePath]([NodePath("../InspectUpperRoomPuddle")])
 
 [node name="UseConsciousnessDevice" type="Area2D" parent="Interactables"]
-position = Vector2(295, 405)
+position = Vector2(295, 505)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1084,11 +1065,12 @@ monitorable = false
 script = ExtResource("consciousness_device")
 visual_path = NodePath("../../Geometry/ConsciousnessDevice")
 interaction_id = &"consciousness_device"
-interaction_rect = Rect2(-100, -20, 200, 95)
+interaction_rect = Rect2(-60, -10, 120, 25)
 required_story_id = &"cg_05_true"
 branch_story_id = &"cg_04"
 required_branch_id = &"truth"
 opened_event = &"storage_room_opened"
+player_access_rect = Rect2(35, 338.4, 385, 206.1)
 
 [node name="InspectShoeCabinet" type="Area2D" parent="Interactables"]
 position = Vector2(560, 296)
@@ -1111,6 +1093,7 @@ script = ExtResource("inspect_text")
 interaction_id = &"InspectHangingPainting"
 visual_path = NodePath("../../Geometry/HangingPainting")
 text = "一个你不认识的白毛漫画角色。"
+interaction_rect = Rect2(-95, -20, 190, 65)
 
 [node name="InspectRug" type="Area2D" parent="Interactables"]
 position = Vector2(848.75, 355.025)
@@ -1135,7 +1118,7 @@ visual_path = NodePath("../../Geometry/FishTank")
 text = "水里没有鱼。水面毫无波澜。"
 
 [node name="PlantStorageKey" type="Area2D" parent="Interactables"]
-position = Vector2(695, 409)
+position = Vector2(650, 409)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1183,6 +1166,7 @@ script = ExtResource("inspect_text")
 interaction_id = &"InspectUpperRoomPuddle"
 visual_path = NodePath("../../Geometry/UpperRoomPuddle")
 text = "水渍到处都是。这座房子正在被水淹没。"
+enabled = false
 
 [node name="InspectHallPuddle" type="Area2D" parent="Interactables"]
 position = Vector2(155, 605)
@@ -1218,7 +1202,7 @@ visual_path = NodePath("../../Geometry/TentPuddle")
 text = "水渍到处都是。这座房子正在被水淹没。"
 
 [node name="InspectDiningTable" type="Area2D" parent="Interactables"]
-position = Vector2(1083.425, 845)
+position = Vector2(1083.425, 698.9)
 collision_layer = 0
 collision_mask = 0
 monitoring = false
@@ -1227,6 +1211,7 @@ script = ExtResource("inspect_text")
 interaction_id = &"InspectDiningTable"
 visual_path = NodePath("../../Geometry/DiningTable")
 text = "桌上是打开的罐头，空包装袋和未收拾的餐具。房子的主人离开时一定很着急。"
+interaction_rect = Rect2(-225, -175, 450, 350)
 
 [node name="InspectKitchenStorageCabinet" type="Area2D" parent="Interactables"]
 position = Vector2(1300, 835)
@@ -1254,6 +1239,7 @@ required_story_id = &"cg_03"
 text = "直到最后，你也没和她看成那部电影。"
 fragment_id = &"memory_fragment_05"
 fragment_display_name = "镜面"
+artwork = ExtResource("art_movie_ticket")
 
 [node name="InspectKitchenDraftPaper" type="Area2D" parent="Interactables"]
 position = Vector2(1235.85, 875)
