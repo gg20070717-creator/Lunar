@@ -9,6 +9,7 @@ const PauseMenuScene = preload("res://scenes/ui/pause_menu.tscn")
 const SettingsMenuScene = preload("res://scenes/ui/settings_menu.tscn")
 const SettingsMenu = preload("res://scripts/ui/settings_menu.gd")
 const GameSettings = preload("res://scripts/ui/game_settings.gd")
+const AudioController = preload("res://scripts/audio/bgm_controller.gd")
 const REFERENCE_SIZE := Vector2(1920, 1080)
 const EMPTY_PAGES: Array[StringName] = [&"load_game", &"credits"]
 
@@ -31,12 +32,18 @@ var game_settings: GameSettings
 var settings_menu: SettingsMenu
 var _settings_return_page: StringName = &"main"
 var _brightness_mask: ColorRect
+var _menu_music: AudioController
 
 
 func _ready() -> void:
 	game_settings = GameSettings.new()
 	game_settings.name = "GameSettings"
 	add_child(game_settings)
+	_menu_music = AudioController.new()
+	_menu_music.name = "MenuAudio"
+	_menu_music.environment_enabled = false
+	add_child(_menu_music)
+	add_to_group("ui_audio")
 	var brightness_layer := CanvasLayer.new()
 	brightness_layer.name = "DisplayBrightness"
 	brightness_layer.layer = 110
@@ -92,6 +99,7 @@ func _fit_artwork() -> void:
 func start_new_game() -> void:
 	if transitioning:
 		return
+	_menu_music.fade_out()
 	_hide_settings()
 	# Lock input before any loading work so the menu responds immediately.
 	transitioning = true
@@ -161,6 +169,9 @@ func _restore_menu_after_load_failure() -> void:
 	await _fade_to(0.0)
 	current_page = &"main"
 	transitioning = false
+	_menu_music.stop()
+	_menu_music.set_context(&"exploration")
+	_menu_music.start_or_resume()
 
 
 func _fade_to(alpha: float) -> void:
@@ -188,6 +199,7 @@ func continue_game() -> void:
 		return
 	if not is_instance_valid(_game):
 		return
+	_menu_music.fade_out()
 	_hide_settings()
 	pause_menu.hide()
 	current_page = &"game"
@@ -210,6 +222,9 @@ func return_to_menu() -> void:
 	current_page = &"main"
 	empty_page.hide()
 	menu_root.show()
+	_menu_music.stop()
+	_menu_music.set_context(&"exploration")
+	_menu_music.start_or_resume()
 	# Keep the supplied appearance even when no session exists to continue.
 	continue_button.disabled = not is_instance_valid(_game)
 
@@ -331,3 +346,7 @@ func _on_credits_pressed() -> void:
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
+
+
+func play_ui_sound(effect_id: StringName) -> void:
+	_menu_music.play_sfx(effect_id)

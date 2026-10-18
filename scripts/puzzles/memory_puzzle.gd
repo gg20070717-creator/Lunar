@@ -7,6 +7,8 @@ signal memory_story_completed(story_id: StringName)
 signal memory_story_branch_completed(story_id: StringName, branch_id: StringName, next_story_id: StringName)
 signal followup_requested(pages: Array[Dictionary])
 signal drag_hint_presented
+signal audio_cue(context_id: StringName)
+signal sfx_requested(effect_id: StringName)
 const TokenScript = preload("res://scripts/puzzles/memory_token.gd")
 const FONT = preload("res://ui_font.tres")
 const TextStyle = preload("res://scripts/ui_text_style.gd")
@@ -17,6 +19,11 @@ const MoonlightSentenceMist = preload("res://scripts/puzzles/moonlight_sentence_
 const MemoryDragHint = preload("res://scripts/puzzles/memory_drag_hint.gd")
 const MemoryEcho = preload("res://scripts/puzzles/memory_echo.gd")
 const CombinationStories = preload("res://scripts/puzzles/memory_combination_stories.gd")
+## Audio markers are added to this instance's page data, leaving shared story text intact.
+const NARRATIVE_AUDIO_CUES: Dictionary = {
+	&"brush_wash_memory": {27: &"cg_02_blackout", 28: &"cg_02_dream"},
+	&"fish_tank_memory": {19: &"cg_03_uplifter", 22: &"cg_03_resume"},
+}
 enum Phase { MOON, RISING, WORD, FEEDBACK, STORY, INTRO, RETURNING, RESOLVING, ECHO, RESISTANCE }
 @export var definition: Resource = preload("res://resources/well_memory_puzzle.tres")
 ## Caller-owned inventory snapshot. The scene never grants or consumes fragments.
@@ -496,12 +503,14 @@ func add_moon(choice_id: StringName) -> void:
 		return
 	drag_hint.dismiss()
 	selected_ids.append(choice_id)
+	sfx_requested.emit(&"water_drop_in")
 	moon_tokens[choice_id].hide()
 	# Depositing reveals exactly this word on the water, without leaving selection.
 	var label: Label = underwater_labels[choice_id]
 	label.add_theme_color_override("font_color", _puzzle_text_color())
 	label.modulate.a = 0.0
 	label.show()
+	sfx_requested.emit(&"words_emerge")
 	var reveal := create_tween()
 	reveal.tween_property(label, "modulate:a", 1.0, 0.25).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	underwater_reveal_tweens[choice_id] = reveal
@@ -667,6 +676,7 @@ func _show_story() -> void:
 		_return_to_world()
 		return
 	phase = Phase.STORY
+	_emit_story_audio()
 	_refresh_hint()
 	water.hide()
 	sentence.hide()
@@ -693,6 +703,20 @@ func _show_story() -> void:
 	else:
 		esc_hint.move_to_front()
 	restoration_succeeded.emit(definition.puzzle_id)
+
+func _emit_story_audio() -> void:
+	var story_id := StringName(active_outcome.get("id", &""))
+	if story_id in [&"cg_01", &"cg_02", &"cg_03"]:
+		audio_cue.emit(story_id)
+	elif story_id == &"cg_04":
+		var branch_id := StringName(active_story_branch.get("id", &""))
+		audio_cue.emit(&"cg_04_truth" if branch_id == &"truth" else &"cg_04_luna")
+
+func _configure_narrative_audio() -> void:
+	var cues: Dictionary = NARRATIVE_AUDIO_CUES.get(definition.puzzle_id, {})
+	for index: int in cues:
+		if index >= 0 and index < narrative_pages.size():
+			narrative_pages[index]["audio_cue"] = cues[index]
 
 func _activate_story_branch(branch_id: StringName) -> bool:
 	for branch: Dictionary in story_branches:
@@ -795,6 +819,7 @@ func reset_attempt() -> void:
 	water_ripple.stop()
 	feedback_timer.stop()
 	phase = Phase.MOON
+	audio_cue.emit(&"puzzle")
 	modulate.a = 1.0
 	selected_ids.clear()
 	slot_ids.assign([&"", &""])
@@ -885,10 +910,11 @@ func _setup_story() -> void:
 	if definition.story_script != null:
 		var constants: Dictionary = definition.story_script.get_script_constant_map()
 		introduction_pages.assign(constants.get("INTRO_PAGES", []))
-		narrative_pages.assign(constants.get("NARRATIVE_PAGES", []))
+		narrative_pages.assign(constants.get("NARRATIVE_PAGES", []).duplicate(true))
 		followup_pages.assign(constants.get("FOLLOWUP_PAGES", []))
 		story_branches.assign(constants.get("STORY_BRANCHES", []).duplicate(true))
 		resistance_pages.assign(constants.get("RESISTANCE_PAGES", []).duplicate(true))
+	_configure_narrative_audio()
 	story_shade = ColorRect.new()
 	story_shade.name = "DialogueShade"
 	story_shade.color = Color(0, 0, 0, 0.45)
@@ -937,6 +963,7 @@ func _on_story_dialogue_finished() -> void:
 
 func _return_to_world() -> void:
 	phase = Phase.RETURNING
+	audio_cue.emit(&"exploration")
 	drag_hint.stop()
 	_refresh_hint()
 	water_ripple.stop()
@@ -951,6 +978,9 @@ func _return_to_world() -> void:
 func _on_story_page_changed(index: int) -> void:
 	if phase != Phase.STORY:
 		return
+	var context_id := StringName(narrative_pages[index].get("audio_cue", &""))
+	if context_id != &"":
+		audio_cue.emit(context_id)
 	var image_path := String(narrative_pages[index].get("cg_image", ""))
 	if image_path.is_empty():
 		return

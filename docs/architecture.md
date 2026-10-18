@@ -2,7 +2,7 @@
 
 ## 文档职责
 
-本文说明 Lunar 在 `D:/godot/demo/demo2` 内的运行结构、模块职责、接口及扩展方式。静态核对日期：2026-10-18，依据当前 `.gd`、`.tscn`、`.tres` 与项目配置整理。四处谜题共 32 条有序路由，阶段四以句型 3“【A】从【B】中涌现”接入五碎片、18 条微剧情与两条正式分支；电影票提供镜面，连续三次反向填写触发真实导向。完整 `cg_04` 后同黑屏衔接第五幕，真回忆后进入储物间与装置选择，最终解锁假结局 `end1` 或真结局 `end2`。原三处组合、后续对白、10.15 素材及音乐切换参数保留。主菜单与暂停共用独立偏好的设置页，剧情及收集/物件查看共用纸张对白框；返回门、仓库、装置与电影票已接入图片，详见下文。CG 位图继续待补。此前设置、对白框及环境资产接入先按静态核对；本轮反馈修订完成 94 项图形回归，范围见项目状态，音频听感仍待验收；2026-10-17 新游戏黑屏专项修复的历史运行范围见项目状态文档，其余模块继续按各节待验收说明处理。
+本文说明 Lunar 在 `D:/godot/demo/demo2` 内的运行结构、模块职责、接口及扩展方式。静态核对日期：2026-10-19，依据当前 `.gd`、`.tscn`、`.tres` 与项目配置整理。四处谜题共 32 条有序路由，阶段四以句型 3“【A】从【B】中涌现”接入五碎片、18 条微剧情与两条正式分支；电影票提供镜面，连续三次反向填写触发真实导向。完整 `cg_04` 后同黑屏衔接第五幕，真回忆后进入储物间与装置选择，最终解锁假结局 `end1` 或真结局 `end2`。原三处组合、后续对白与 10.15 素材保留，音乐按用户新配乐说明重新分配。主菜单与暂停共用独立偏好的设置页，剧情及收集/物件查看共用纸张对白框；返回门、仓库、装置与电影票已接入图片，详见下文。CG 位图继续待补。此前设置、对白框及环境资产接入先按静态核对；反馈修订完成 94 项图形回归，范围见项目状态，该结果早于本轮音频接入。新音频完成 10 脚本语法解析及资产静态审计，听感仍待验收；2026-10-17 新游戏黑屏专项修复的历史运行范围见项目状态文档，其余模块继续按各节待验收说明处理。
 
 - 开发操作、项目边界及验证要求见 [AGENTS.md](../AGENTS.md)。
 - 当前接入内容、占位与后续事项见 [项目状态](project_status.md)。
@@ -28,7 +28,7 @@
 | `scripts/` | 探索、交互、会话状态及共享显示组件 |
 | `scripts/ui/`、`scenes/ui/` | 主菜单、暂停、开场、对白与一次性操作说明 |
 | `scripts/puzzles/`、`scenes/puzzles/` | 共用记忆解谜状态机、拖拽、反馈与演出 |
-| `scripts/audio/`、`resources/audio/` | 会话常驻 BGM 控制器、Hide/SEEK clip 与转换规则 |
+| `scripts/audio/`、`assets/audio/` | 音乐上下文、双播放器淡化、环境层、剧情时序与音效；旧双 clip 资源保留未用 |
 | `resources/` | 解谜定义与 AtlasTexture、SpriteFrames 等配置资源 |
 | `LunarTitleFX/`、`shaders/` | 菜单标题效果与交互光晕、暂停模糊着色器 |
 | `assets/` | 游戏实际引用的原图、字体、音轨及各自资产清单 |
@@ -56,9 +56,9 @@ Godot AI 的 `_mcp_game_helper` 是工具辅助 autoload。玩法状态由 `main
 
 `opening_cinematic.gd` 使用独立 `StoryDialogue`、黑底、淡入与特定页震动；页数据包含前段旁白、Luna 台词、主角对白及回忆旁白。每次新游戏完整播放。开场期间由菜单转发输入，Esc 被消化，当前没有跳过开场接口。
 
-`continue_game()` 恢复 `_game` 的显示、UI、相机和 `PROCESS_MODE_INHERIT`，并调用 BGM 的 `start_or_resume()`。`return_to_menu()` 调用 `_suspend_game()`，隐藏游戏、UI 和相机，设置 `PROCESS_MODE_DISABLED` 并清零速度。`pause_game()` 同样禁用游戏处理，但保留画面供暂停界面的两遍高斯模糊取样。暂停与 `_suspend_game()` 都显式调用 BGM 的 `suspend()` 冻结音频时间；节点处理模式负责会话逻辑，未使用 `SceneTree.paused`。
+`continue_game()` 恢复 `_game` 的显示、UI、相机和 `PROCESS_MODE_INHERIT`，并调用 BGM 的 `start_or_resume()`。`return_to_menu()` 调用 `_suspend_game()`，隐藏游戏、UI 和相机，设置 `PROCESS_MODE_DISABLED` 并清零速度。`pause_game()` 同样禁用游戏处理，但保留画面供暂停界面的两遍高斯模糊取样。暂停与 `_suspend_game()` 都显式调用 BGM 的 `suspend()` 冻结全部游戏音频和淡化时间；节点处理模式负责会话逻辑，未使用 `SceneTree.paused`。
 
-BGM 不自动播放。整段开场和卧室淡入结束前保持无音乐，菜单在恢复自由操作界面时才开始 Hide。新游戏销毁旧会话并重建 BGM，起始播放位置为 0；继续游戏恢复当前时间，主菜单没有另建音乐播放器。
+游戏音频在卧室淡入结束、恢复自由操作时首次启动，探索曲与地点白噪音从 0 开始；新游戏销毁旧会话并重建音频，继续游戏恢复原位置。菜单外壳独立 `MenuAudio` 播放“主界面+解密”，无白噪音；新游戏和继续时淡出菜单曲，开场未新增配乐或环境声。
 
 “继续游戏”要求当前 `_game` 有效。退出进程后会话消失；音量和亮度偏好独立保留。存档槽与制作人员页面目前为预留空白页。页面接口为：
 
@@ -79,14 +79,14 @@ BGM 不自动播放。整段开场和卧室淡入结束前保持无音乐，菜�
 
 设置层为 CanvasLayer 40。从主菜单进入时隐藏所有菜单按钮，背景与 Lunar 标题保留供设置层两遍高斯模糊取样，再叠加设置背景与控件。从暂停进入时隐藏暂停 `Artwork`，复用暂停层既有两遍模糊，避免叠加原暂停文字。菜单壳另建 CanvasLayer 110 的全屏黑色亮度遮罩，鼠标过滤为忽略；亮度 100 时完全透明，亮度 0 时黑色 alpha 为 0.6，统一作用于菜单、设置、开场、游戏和转场。
 
-`default_bus_layout.tres` 配置 Master、BGM、SFX，后两者输出至 Master。设置服务将背景音乐及音效百分比应用到各自总线，0 使用总线静音；BGM 控制器基准 `-6 dB` 保留。当前尚无实际音效素材或触发，后续音效播放器需输出至 SFX。
+`default_bus_layout.tres` 配置 Master、BGM、SFX，后两者输出至 Master。设置服务将背景音乐及音效百分比应用到各自总线，0 使用总线静音；BGM 控制器基准 `-6 dB` 保留。环境白噪音、雨声、脚步和已接入短音效均输出至 SFX。
 
 ### 常驻游戏结构
 
 ```text
 Demo2 (main.gd)
   GameState (game_state.gd)
-  BGM (bgm_controller.gd，运行时创建 AudioStreamPlayer)
+  BGM (bgm_controller.gd，运行时创建音乐/白噪音/雨声通道及音效播放器)
   World
     LevelHost
       当前地点 (level.gd)
@@ -276,22 +276,40 @@ StoryDialogue 有说话人时正文安全区为 `(48, 78, 1688, 154)`，无说�
 
 `collection_preview.gd` 等比显示道具图片；`collect_key.gd` 的默认 `artwork` 与 `placeholder_type = key` 的回退均引用 `resources/art/ui/key_icon.tres`。该替换只影响图标，去重发放、钥匙查询与门户持有逻辑保留。
 
-## 会话背景音乐
+## 会话音频
 
-`main.tscn` 根下的 `BGM` Node 挂 `scripts/audio/bgm_controller.gd`，运行时创建一个 `AudioStreamPlayer`。控制器深复制 `resources/audio/gameplay_bgm.tres` 的 AudioStreamInteractive，为当前会话保留独立状态；clip 0 为 Hide，clip 1 为 Seek（原曲名 SEEK）。播放器基准音量 `-6 dB` 可由导出属性调整，输出至 `BGM` 总线，设置页的背景音乐百分比在总线上统一生效。
+`main.tscn` 根下的 `BGM` Node 挂 `scripts/audio/bgm_controller.gd`。Music、Ambience、Rain 各创建 `audio_channel.gd`，以两个 AudioStreamPlayer 交叉淡化；脚步、uplifter 和 8 个轮换短音效声部独立播放，支持投入声与显词声叠加。音乐输出 BGM，环境声及音效输出 SFX，两者汇入 Master；设置服务分别控制总线。Music 基准为 -6 dB，默认切换为 0.75 秒，探索曲与水池曲保留共同播放秒数。白噪音和雨声另启用 0.75 秒循环首尾双声部交叉淡化。
 
 | 接口 | 作用 |
 | --- | --- |
-| `start_or_resume()` | 首次启动当前 clip；已有播放时解除 `stream_paused`，恢复同一时间 |
-| `suspend()` | 设置 `stream_paused`，冻结音频播放时间 |
-| `set_puzzle_active(active)` | 水井/鱼缸/洗笔桶/帐篷收纳盒谜题为真时选择 SEEK，否则选择 Hide；相同目标不重复请求 |
-| `stop()` | 停止并重置控制器至未启动的 Hide 状态 |
+| `start_or_resume()` | 首次应用当前音乐及地点环境层；继续时恢复全部通道、音效和淡化的原位置 |
+| `suspend()` | 冻结音乐、白噪音、雨声、脚步、uplifter、短音效及通道 Tween |
+| `set_context(context_id)` | 接收探索、谜题、CG、剧情页及结局 cue，维护引子锁定和 CG3 截断续播 |
+| `set_environment(outdoor)` | 按地点更新持续白噪音与脚步类型；小院为室外，其余为室内 |
+| `set_walking(moving, outdoor)` | 根据角色实际位移启停循环脚步，模态锁定时停止 |
+| `play_sfx(effect_id)` | 播放独立短音效，挂起的游戏会话拒绝新音效 |
+| `fade_out()/stop()` | 菜单切换时淡出音乐，或完整停止并重置控制器 |
 
-`main.gd` 根据 GameUI 的 `view_state_changed` 与模态状态更新音乐，四个谜题 ID 为 `well_memory/fish_tank_memory/brush_wash_memory/tent_storage_memory`。前置、选碎片、填词、微剧情、Luna 介入与正式 CG 使用 SEEK；微剧情或前两次介入回谜题保持 SEEK。第五幕黑底 CG、装置正文及两种结局正文继续使用 SEEK；真回忆后的探索提示与终局使用 Hide。原三处 `return_started` 或 Esc 关闭后切 Hide，后续普通对白保持 Hide。普通图片、收集与地点切换保留当前播放时间。
+菜单外壳另建 `MenuAudio`，关闭环境层并播放“主界面+解密”。新游戏淡出菜单曲，加载失败恢复菜单配乐；开场未新增配乐或环境声；卧室淡入完成后游戏从 0 开始探索曲及室内白噪音。暂停冻结游戏音频，返回菜单冻结游戏音频并启动外壳菜单曲；继续淡出菜单曲并恢复游戏。设置调节只改变 BGM/SFX 总线增益，来源为暂停时保持游戏冻结。
 
-双向转换均使用 `IMMEDIATE + SAME_POSITION + FADE_CROSS`，通过 `AudioStreamPlaybackInteractive.switch_to_clip()` 在同位置切换。`fade_beats = 0.03` 在当前无 BPM 的 WAV 上对应约 30 ms 逐采样交叉平滑；切换不重新播放或 seek。暂停与返回菜单由菜单壳显式挂起播放器，新游戏通过重建整个会话从 0 开始；整个开场及卧室淡入期间无 BGM，主菜单无新增 BGM。
+`main.gd` 将 GameUI 的 `audio_cue/sfx_requested` 转发至控制器，并接收 Player 的 `walking_changed`；地点切换更新环境类型。GameUI 打开谜题前发出 `puzzle`，连接谜题音频信号后才实例化进树，确保前置与页 cue 不丢失。`memory_puzzle.gd` 将专属页 cue 写入本实例的深拷贝数据；正式故事按 ID 和阶段四分支进入配乐，不再按整个模态统一选曲。
 
-两份原 WAV 与导入参数独立维护在 `assets/audio/`，全曲循环为 `begin 0 / end -1`，格式、循环枚举及替换约束见音频规范。设置页已提供独立 BGM/SFX 音量，当前尚无实际音效素材或触发。原文件归档、参数与总线引用已静态核对，四处组合剧情沿用既有谜题音乐生命周期；本次未由 Codex 启动游戏、引擎、测试或音频试听，同位置切换、音量调整、循环和乐句衔接的实际听感待用户确认。
+| 剧情范围 | 音乐与专属时序 |
+| --- | --- |
+| 探索、普通查看/对白及装置选择 | “主界面+解密”；普通查看和同曲上下文不重新播放 |
+| 四处谜题前置、操作、微剧情、前两次抵抗 | “水池”；返回谜题保持，退出与原三处后续对白恢复探索曲 |
+| `cg_01` | “相识” |
+| `cg_02` | “矛盾”起始，零起 index 27 黑屏页淡出、index 28 换“这是梦吗”；独立“大雨”循环贯穿并在离开时淡出 |
+| `cg_03` | “宁静的日常”；index 19 播 uplifter，结束时保存音乐位置并硬停、播放水滴；index 22 从断点淡入，快翻时等待 uplifter 完成 |
+| `cg_04_luna/cg_04_truth` | 分别“这是梦吗”/“月球坠落” |
+| `cg_05_true` | 月球坠落延续同曲位置，index 7 切不循环的“引子” |
+| `cg_05_false/end1`、`end2` | 分别 lunar（fake）、lunar（true），终局保留对应配乐 |
+
+GameUI 为第五幕真回忆 index 7 添加 `intro`，离开该正文时发出 `truth_recollection_left`。控制器分别等候引子 `finished` 与离开真回忆，两条件齐备后恢复最新待播上下文；提前退出继续引子，曲终仍在真回忆时保持音乐停止。锁定期间记录最新上下文，避免快速翻页把引子提前换掉。快速重新完成真实分支时，新一轮引子加入队列，等旧引子完整播放后再播放新一轮，并保留各轮离开真回忆的状态。室内外白噪音贯穿探索、谜题与 CG，CG2 大雨另层叠加。
+
+成功通过房门和原地打开仓库播放开门声，楼梯不播放；脚步来自实际移动状态。碎片成功投入时发出 `water_drop_in`，对应词显现发出 `words_emerge`，可同时播放。菜单图片按钮通过外壳的 `ui_audio` 组播放点击/选中声。
+
+22 份新 WAV 的原文件、14 份循环/8 份单次和导入参数见 [音频规范](audio_assets.md)。旧 Hide/SEEK 与 `gameplay_bgm.tres` 归为历史未使用资源。2026-10-19 本轮已完成 Godot 4.7.2 `--check-only` 的 10 个相关脚本解析，失败 0；资产静态审计核对 22 份 active 与 2 份 legacy 的 SHA/导入参数及 22 条运行路径引用，错误 0。报告为 `verification/audio_20261018/static_audit.json`。Godot `--headless --editor --import` 正常退出 0，`verification/audio_20261018/import.log` 无 ERROR、SCRIPT ERROR 或 Parse Error；循环淡化、引子队列和菜单失败恢复的最终 3 个脚本又经 `--check-only` 复查，失败 0。未启动游戏、自动化场景或试听。此前 94 项图形回归早于本轮音频修改，听感和新增时序待用户验收。
 
 ## 共用记忆解谜
 
@@ -384,7 +402,7 @@ context["ui"].open_puzzle(definition, context["state"].owned_fragment_ids())
 
 独立 `story_script` 绑定 `tent_storage_memory_story.gd`，阶段四共 20 条有序路由，均匹配句型 3“【A】从【B】中涌现”。D→C 使用 `cg_branch/luna` 直接播放 Luna 7 页；C→D 使用 `cg_resistance/truth`，连续第三次播放真实 14 页。两条正式路由故事 ID 均为 `cg_04`，其余 18 条使用用户新正文与 `3_<左编号>_<右编号>` ID，覆盖剩余五碎片异词组合。阶段 1—3 原路由保留。
 
-两分支正文逐字保留用户原文，每页空 `speaker` 且 `show_protagonist=false`。共用演出按路由 `branch_id` 深拷贝对应页组并进入 `STORY`，沿用左键/Enter/空格/F 补齐与翻页、黑底和通用对白框。未添加 CG 位图、立绘或音效，制作概要与真假结局说明不作为正文显示。
+两分支正文逐字保留用户原文，每页空 `speaker` 且 `show_protagonist=false`。共用演出按路由 `branch_id` 深拷贝对应页组并进入 `STORY`，沿用左键/Enter/空格/F 补齐与翻页、黑底和通用对白框。CG 位图继续待提供，立绘保持关闭，配乐按 Luna/真实导向分别使用“这是梦吗”/“月球坠落”；制作概要与真假结局说明不作为正文显示。
 
 `INTRO_PAGES` 为三页解谜前置：Luna“月影从潮汐中涌现。”、旁白“事实果真如此吗？”、Luna 再次“月影从潮汐中涌现。”；每页关闭立绘，沿用共用对白和输入。未满足完整 `cg_03` 或没有匹配碎片时继续显示查看提示，不标记前置已开始。
 
@@ -410,11 +428,11 @@ GameUI 通过 `pending_ending_story` 接收完整 `cg_04` 的目标。`cg_05_fal
 
 前三处 GameUI 暂存后续页，收到 `return_started` 时恢复探索世界但保持输入锁定，等待淡出和 `exit_requested` 后直接打开待续对白。阶段四正式分支使用独立的第五幕目标队列，直接退出谜题、释放实例并同黑屏接新正文。
 
-洗笔桶后续 `FOLLOWUP_PAGES` 将提供的完整旁白按自然句分为八页，每页设置空 `speaker`、`expression = neutral` 和 `show_protagonist = true`；复用 GameUI 普通对白，在画室背景上全程显示右侧主角中性立绘。后续对白保持 Hide。标题“第三幕——画室水桶解密后”和“接第三幕任务脚本”仅为制作说明，不显示为正文，不据此新增任务。
+洗笔桶后续 `FOLLOWUP_PAGES` 将提供的完整旁白按自然句分为八页，每页设置空 `speaker`、`expression = neutral` 和 `show_protagonist = true`；复用 GameUI 普通对白，在画室背景上全程显示右侧主角中性立绘。后续对白使用探索曲“主界面+解密”。标题“第三幕——画室水桶解密后”和“接第三幕任务脚本”仅为制作说明，不显示为正文，不据此新增任务。
 
-鱼缸后续 `FOLLOWUP_PAGES` 为第四幕 16 页普通对白，完整读完情节块 3 后经同一待续机制淡回客厅原位置播放。右侧主角立绘持续显示，Luna 为画外音；Luna 的“不，不，不。”与乱码数字台词两页配置 `shake = true`，复用共用对白及探索镜头震动。三遍相同的帐篷、小兔玩偶台词保持原图重复次序，不新增任务、音频、奖励或库存消耗；“第四幕”和“进解密”等制作标题、备注不作为正文。前置及情节块 3 使用 SEEK，`return_started` 后与第四幕保持 Hide。
+鱼缸后续 `FOLLOWUP_PAGES` 为第四幕 16 页普通对白，完整读完情节块 3 后经同一待续机制淡回客厅原位置播放。右侧主角立绘持续显示，Luna 为画外音；Luna 的“不，不，不。”与乱码数字台词两页配置 `shake = true`，复用共用对白及探索镜头震动。三遍相同的帐篷、小兔玩偶台词保持原图重复次序，不新增任务、奖励或库存消耗；“第四幕”和“进解密”等制作标题、备注不作为正文。前置使用“水池”，情节块 3 使用“宁静的日常”及指定截断续播，`return_started` 后与第四幕使用探索曲。
 
-`story_script` 通过脚本常量按需加载前置、正式、后续三组常规页，以及 `STORY_BRANCHES` 与 `RESISTANCE_PAGES`；未定义的页组按空数组处理。普通页格式由 StoryDialogue 解析；解谜演出额外读取 `cg_image`。当前水井将 AtlasTexture 区域作为 3508 x 2480 合成画布中的位置与尺寸，首次遇到各分镜时淡入并保留先前分镜。普通图片路径使用单图显示。情节块 2、3 的长段落按自然句分页，保留台词与旁白顺序，复用左键/Enter/空格/F 补齐和翻页及黑底、对白框的淡入淡出；情节块 2 前 28 页及情节块 3 等其余图片、雨声与新增演出待后续素材和需求。新增剧情结构若超出这些规则，需要同时扩展演出逻辑。
+`story_script` 通过脚本常量按需加载前置、正式、后续三组常规页，以及 `STORY_BRANCHES` 与 `RESISTANCE_PAGES`；未定义的页组按空数组处理。普通页格式由 StoryDialogue 解析；解谜演出额外读取 `cg_image`。当前水井将 AtlasTexture 区域作为 3508 x 2480 合成画布中的位置与尺寸，首次遇到各分镜时淡入并保留先前分镜。普通图片路径使用单图显示。情节块 2、3 的长段落按自然句分页，保留台词与旁白顺序，复用左键/Enter/空格/F 补齐和翻页及黑底、对白框的淡入淡出；情节块 2 前 28 页及情节块 3 等其余图片与新增视觉演出待后续素材和需求；情节块 2 大雨及指定配乐切换已接入。新增剧情结构若超出这些规则，需要同时扩展演出逻辑。
 
 洗笔桶 `puzzle_definition` 使用稳定 A—E 库存映射；未持有选项隐藏，D 为小帐篷月影，E 为电影票镜面，四处名称与词同步。阶段 1—3 保留既有路由，D/E 相关新组合集中在阶段四。首次前置沿用实例 `INTRO`、`introduction_started` 与 GameState 标记机制。创世纪默认五页剧情复用普通交互、白色光晕与输入分发，每次从第一页开始。
 

@@ -1,13 +1,19 @@
 extends CharacterBody2D
+signal walking_changed(moving: bool)
 @export var speed := 300.0
 @export var interaction_range := 65.0
 ## Visible height in world units; also used by camera framing.
 @export_range(32.0, 256.0, 1.0) var body_height := 120.0
 @export_range(0.0, 16.0, 1.0) var idle_bob_height := 2.0
 @export_range(0.1, 4.0, 0.1) var idle_bob_period := 0.8
-var input_blocked := false
+var input_blocked := false:
+	set(value):
+		input_blocked = value
+		if value:
+			_set_walking(false)
 var facing := Vector2.DOWN
 var idle_elapsed := 0.0
+var _walking := false
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -19,6 +25,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if input_blocked:
 		velocity = Vector2.ZERO
+		_set_walking(false)
 		_update_animation(false, delta)
 		return
 	var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
@@ -30,7 +37,15 @@ func _physics_process(delta: float) -> void:
 			facing = Vector2.DOWN if direction.y > 0.0 else Vector2.UP
 	var before := position
 	move_and_slide()
-	_update_animation(position.distance_to(before) > 0.01, delta)
+	var moving := position.distance_to(before) > 0.01
+	_set_walking(moving)
+	_update_animation(moving, delta)
+
+func _set_walking(moving: bool) -> void:
+	if moving == _walking:
+		return
+	_walking = moving
+	walking_changed.emit(moving)
 
 func _facing_name() -> String:
 	if facing == Vector2.UP:

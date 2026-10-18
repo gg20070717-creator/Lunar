@@ -23,11 +23,14 @@ func _ready() -> void:
 	_setup_input()
 	context = {"game": self, "player": player, "state": state, "ui": ui}
 	ui.view_state_changed.connect(_on_view_state_changed)
+	ui.audio_cue.connect(_on_audio_cue)
+	ui.sfx_requested.connect(_on_sfx_requested)
 	ui.memory_story_completed.connect(_on_memory_story_completed)
 	ui.memory_story_branch_completed.connect(_on_memory_story_branch_completed)
 	ui.ending_unlocked.connect(state.unlock_ending)
 	ui.dialogue.shake_offset_changed.connect(_on_dialogue_shake_offset_changed)
 	state.fragment_acquired.connect(_on_fragment_acquired)
+	player.walking_changed.connect(_on_walking_changed)
 	get_viewport().size_changed.connect(_fit_camera)
 	_setup_room_transition()
 	_replace_level(load(initial_scene_path) as PackedScene, initial_scene_path, initial_spawn)
@@ -182,6 +185,8 @@ func _replace_level(packed: PackedScene, scene_path: String, spawn_id: StringNam
 	player.velocity = Vector2.ZERO
 	_fit_camera()
 	ui.set_status(level.display_name, state.fragment_count())
+	bgm.set_environment(level.level_id == &"courtyard")
+	bgm.set_walking(false, level.level_id == &"courtyard")
 	return true
 
 func _fit_camera() -> void:
@@ -217,14 +222,18 @@ func _on_dialogue_shake_offset_changed(offset: Vector2) -> void:
 
 func _on_view_state_changed(is_open: bool) -> void:
 	$World.visible = not (ui.is_puzzle_covering_world() or ui.is_story_covering_world())
-	var puzzle_music: bool = ui.is_puzzle_covering_world()
-	if puzzle_music:
-		puzzle_music = ui.active_puzzle.definition.puzzle_id in [&"well_memory", &"fish_tank_memory", &"brush_wash_memory", &"tent_storage_memory"]
-	puzzle_music = puzzle_music or ui.opaque_dialogue
-	bgm.set_puzzle_active(puzzle_music)
 	player.input_blocked = is_open or transitioning or ui.is_controls_hint_open()
 	player.velocity = Vector2.ZERO
 	_select_target()
+
+func _on_audio_cue(context_id: StringName) -> void:
+	bgm.set_context(context_id)
+
+func _on_sfx_requested(effect_id: StringName) -> void:
+	bgm.play_sfx(effect_id)
+
+func _on_walking_changed(moving: bool) -> void:
+	bgm.set_walking(moving, is_instance_valid(level) and level.level_id == &"courtyard")
 
 func _on_fragment_acquired(_fragment_id: StringName) -> void:
 	ui.set_status(level.display_name, state.fragment_count())

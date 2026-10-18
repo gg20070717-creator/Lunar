@@ -100,6 +100,8 @@ func _set_hovered(value: bool) -> void:
 	if value == _hovered:
 		return
 	_hovered = value
+	if value:
+		_play_sound(&"select")
 	if _hover_tween != null:
 		_hover_tween.kill()
 	_hover_tween = create_tween().set_parallel(true)
@@ -110,7 +112,8 @@ func _set_hovered(value: bool) -> void:
 
 
 func _on_button_down() -> void:
-	if not disabled:
+	if not disabled and _menu_is_visible():
+		_play_sound(&"click")
 		_animate_press(true)
 
 
@@ -138,3 +141,9 @@ func reset_effects() -> void:
 	_hover_background.scale = HOVER_REST_SCALE
 	_visual.scale = Vector2.ONE
 	_visual.position = Vector2.ZERO
+
+
+func _play_sound(effect_id: StringName) -> void:
+	var service := get_tree().get_first_node_in_group("ui_audio")
+	if service != null:
+		service.call("play_ui_sound", effect_id)

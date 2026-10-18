@@ -5,6 +5,8 @@ signal memory_story_completed(story_id: StringName)
 signal memory_story_branch_completed(story_id: StringName, branch_id: StringName, next_story_id: StringName)
 signal ending_unlocked(ending_id: StringName)
 signal main_menu_requested
+signal audio_cue(context_id: StringName)
+signal sfx_requested(effect_id: StringName)
 const FONT = preload("res://ui_font.tres")
 const DialogueBubble = preload("res://scripts/ui/dialogue_bubble.gd")
 const DialoguePaper = preload("res://scripts/ui/dialogue_paper.gd")
@@ -120,6 +122,7 @@ func _ready() -> void:
 	dialogue.name = "StoryDialogue"
 	root_control.add_child(dialogue)
 	dialogue.finished.connect(_on_dialogue_finished)
+	dialogue.page_changed.connect(_on_dialogue_page_changed)
 	dialogue.choice_selected.connect(_on_dialogue_choice_selected)
 	ending_screen = VBoxContainer.new()
 	ending_screen.name = "EndingScreen"
@@ -368,10 +371,20 @@ func open_puzzle(definition: Resource, owned_fragments: Array[StringName] = [], 
 	active_puzzle.restoration_succeeded.connect(_on_restoration_succeeded)
 	active_puzzle.memory_story_completed.connect(_on_memory_story_completed)
 	active_puzzle.memory_story_branch_completed.connect(_on_memory_story_branch_completed)
+	active_puzzle.audio_cue.connect(_on_puzzle_audio_cue)
+	active_puzzle.sfx_requested.connect(_on_puzzle_sfx_requested)
+	# The puzzle's _ready can emit page cues; establish its base music first.
+	audio_cue.emit(&"puzzle")
 	root_control.add_child(active_puzzle)
 	active_puzzle.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	view_state_changed.emit(true)
 	return true
+
+func _on_puzzle_audio_cue(context_id: StringName) -> void:
+	audio_cue.emit(context_id)
+
+func _on_puzzle_sfx_requested(effect_id: StringName) -> void:
+	sfx_requested.emit(effect_id)
 
 func _on_puzzle_drag_hint_presented() -> void:
 	puzzle_drag_hint_seen = true
@@ -396,6 +409,7 @@ func show_dialogue(pages: Array[Dictionary]) -> void:
 	_present_story_dialogue(pages)
 
 func _present_story_dialogue(pages: Array[Dictionary], story_id: StringName = &"", full_black: bool = false) -> void:
+	_leave_truth_recollection(story_id)
 	clear_note()
 	prompt_bubble.hide()
 	ending_screen.hide()
@@ -407,8 +421,27 @@ func _present_story_dialogue(pages: Array[Dictionary], story_id: StringName = &"
 		control.hide()
 	overlay.color = Color(0, 0, 0, 1.0 if full_black else 0.6)
 	overlay.show()
-	dialogue.start(pages)
+	var prepared_pages: Array[Dictionary] = []
+	prepared_pages.assign(pages.duplicate(true))
+	if story_id == &"cg_05_true" and prepared_pages.size() > 7:
+		prepared_pages[7]["audio_cue"] = &"intro"
+	if story_id in [&"cg_05_true", &"cg_05_false", &"end2"]:
+		audio_cue.emit(story_id)
+	else:
+		audio_cue.emit(&"exploration")
+	dialogue.start(prepared_pages)
 	view_state_changed.emit(true)
+
+func _leave_truth_recollection(next_story_id: StringName) -> void:
+	if active_story_id == &"cg_05_true" and next_story_id != &"cg_05_true":
+		audio_cue.emit(&"truth_recollection_left")
+
+func _on_dialogue_page_changed(index: int) -> void:
+	if index < 0 or index >= dialogue.pages.size():
+		return
+	var context_id := StringName(dialogue.pages[index].get("audio_cue", &""))
+	if context_id != &"":
+		audio_cue.emit(context_id)
 
 func _show_ending_chapter(story_id: StringName) -> void:
 	if story_id == &"cg_05_false":
@@ -430,7 +463,6 @@ func _on_dialogue_choice_selected(choice_id: StringName) -> void:
 
 func _on_dialogue_finished() -> void:
 	var completed_id := active_story_id
-	active_story_id = &""
 	if completed_id == &"cg_05_true":
 		memory_story_completed.emit(completed_id)
 		_present_story_dialogue(EndingStory.EXPLORATION_PAGES)
@@ -445,6 +477,7 @@ func _on_dialogue_finished() -> void:
 
 func _show_ending_screen(ending_id: StringName) -> void:
 	dialogue.stop()
+	active_story_id = &""
 	opaque_dialogue = false
 	modal_mode = ModalMode.ENDING
 	modal_open = true
@@ -508,6 +541,7 @@ func close_view() -> void:
 	pending_puzzle_dialogue.clear()
 	var next_ending_story := pending_ending_story
 	pending_ending_story = &""
+	_leave_truth_recollection(&"")
 	var viewport := get_viewport()
 	if viewport.gui_is_dragging() and viewport.has_method("gui_cancel_drag"):
 		viewport.call("gui_cancel_drag")
@@ -535,6 +569,7 @@ func close_view() -> void:
 	if next_ending_story != &"":
 		_show_ending_chapter(next_ending_story)
 	elif followup_pages.is_empty():
+		audio_cue.emit(&"exploration")
 		view_state_changed.emit(false)
 	else:
 		# The CG has faded out; keep movement locked through the new dialogue.

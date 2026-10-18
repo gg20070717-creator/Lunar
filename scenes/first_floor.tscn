@@ -1027,6 +1027,7 @@ target_scene_path = "res://scenes/corridor.tscn"
 target_spawn = &"from_first_floor"
 prompt_offset = Vector2(-105.000000, 30.000000)
 interaction_rect = Rect2(-47.500000, 0.000000, 95.000000, 70.000000)
+door_sound_enabled = false
 
 [node name="ToCourtyard" type="Area2D" parent="Interactables"]
 position = Vector2(540.000000, 240.983871)

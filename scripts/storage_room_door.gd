@@ -19,6 +19,7 @@ func interact(context: Dictionary) -> void:
 		context["ui"].show_note("已上锁", global_position + Vector2(0, -100), 4.0)
 		return
 	context["state"].mark_story_event_seen(opened_event)
+	context["game"].bgm.play_sfx(&"door_open")
 	_sync_gate(true)
 	set_highlight(false)
 

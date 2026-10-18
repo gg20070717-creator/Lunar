@@ -378,6 +378,7 @@ target_scene_path = "res://scenes/first_floor.tscn"
 target_spawn = &"from_corridor"
 prompt_offset = Vector2(-95, -35)
 interaction_rect = Rect2(-50.000000, -70.000000, 100.000000, 70.000000)
+door_sound_enabled = false
 
 [node name="ToStudio" type="Area2D" parent="Interactables"]
 position = Vector2(379.500000, 120.000000)
