@@ -63,7 +63,7 @@
 
 ## 播放与剧情时序
 
-游戏常驻 `BGM` 节点挂 `bgm_controller.gd`。Music、Ambience、Rain 各用 `audio_channel.gd` 的两个 AudioStreamPlayer 交叉淡化，另有独立脚步、uplifter 与 8 个轮换短音效声部。默认切换时长为 0.75 秒，可在 0.5–1 秒范围调整；白噪音与雨声在循环末尾提前 0.75 秒启动另一声部，实现首尾交叉淡化；情节块 3 的指定截断直接停止音乐。
+游戏常驻 `BGM` 节点挂 `bgm_controller.gd`。Music、Ambience、Rain 各用 `audio_channel.gd` 的两个 AudioStreamPlayer 交叉淡化，另有独立脚步、uplifter 与 8 个轮换短音效声部。默认切换时长为 0.75 秒，可在 0.5–1 秒范围调整，按线性振幅插值后换算为分贝，避免直接插值分贝造成交接中点的明显音量下凹；白噪音与雨声在循环末尾提前 0.75 秒启动另一声部，实现首尾交叉淡化；情节块 3 的指定截断直接停止音乐。
 
 | 上下文或时机 | 已接入行为 |
 | --- | --- |

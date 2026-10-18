@@ -94,11 +94,16 @@ func _fade(index: int, target: float, seconds: float, stop_after: bool) -> void:
 		return
 	var tween := create_tween()
 	_fades[index] = tween
-	tween.tween_property(voice, "volume_db", target, seconds)
+	# Crossfade in amplitude space; interpolating dB creates a deep midpoint dip.
+	var target_gain := 0.0 if stop_after else db_to_linear(target)
+	tween.tween_method(_set_voice_gain.bind(index), db_to_linear(voice.volume_db), target_gain, seconds)
 	if stop_after:
 		tween.tween_callback(voice.stop)
 	if _paused:
 		tween.pause()
+
+func _set_voice_gain(gain: float, index: int) -> void:
+	_voices[index].volume_db = linear_to_db(maxf(gain, 0.00001))
 
 func _kill_fade(index: int) -> void:
 	if is_instance_valid(_fades[index]):
